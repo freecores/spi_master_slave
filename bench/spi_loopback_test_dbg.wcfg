@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="C:/dropbox/Dropbox/VHDL_training/ISE_projects/spi_master_slave/spi_loopback_test_isim_par.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="spi_loopback_test" />
+            <top_module name="std_logic_1164" />
+            <top_module name="textio" />
+            <top_module name="vcomponents" />
+            <top_module name="vital_primitives" />
+            <top_module name="vital_timing" />
+            <top_module name="vpackage" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="/spi_loopback_test/spi_2x_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_2x_clk</obj_property>
+      <obj_property name="ObjectShortName">spi_2x_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/m_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">m_clk</obj_property>
+      <obj_property name="ObjectShortName">m_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/spi_ssel" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_ssel</obj_property>
+      <obj_property name="ObjectShortName">spi_ssel</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/spi_sck" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_sck</obj_property>
+      <obj_property name="ObjectShortName">spi_sck</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/spi_mosi" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_mosi</obj_property>
+      <obj_property name="ObjectShortName">spi_mosi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/spi_miso" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spi_miso</obj_property>
+      <obj_property name="ObjectShortName">spi_miso</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/rx_bit_reg_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rx_bit_reg_m</obj_property>
+      <obj_property name="ObjectShortName">rx_bit_reg_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/sh_reg_m" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sh_reg_m[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sh_reg_m[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_m" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">do_m[31:0]</obj_property>
+      <obj_property name="ObjectShortName">do_m[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_transfer_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">do_transfer_m</obj_property>
+      <obj_property name="ObjectShortName">do_transfer_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_valid_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">do_valid_m</obj_property>
+      <obj_property name="ObjectShortName">do_valid_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/di_rdy_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">di_rdy_m</obj_property>
+      <obj_property name="ObjectShortName">di_rdy_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/di_m" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di_m[31:0]</obj_property>
+      <obj_property name="ObjectShortName">di_m[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wren_m</obj_property>
+      <obj_property name="ObjectShortName">wren_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/state_m" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state_m[5:0]</obj_property>
+      <obj_property name="ObjectShortName">state_m[5:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/s_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_clk</obj_property>
+      <obj_property name="ObjectShortName">s_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">do_s[31:0]</obj_property>
+      <obj_property name="ObjectShortName">do_s[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_transfer_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">do_transfer_s</obj_property>
+      <obj_property name="ObjectShortName">do_transfer_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/do_valid_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">do_valid_s</obj_property>
+      <obj_property name="ObjectShortName">do_valid_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/di_rdy_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">di_rdy_s</obj_property>
+      <obj_property name="ObjectShortName">di_rdy_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/di_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">di_s[31:0]</obj_property>
+      <obj_property name="ObjectShortName">di_s[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wren_s</obj_property>
+      <obj_property name="ObjectShortName">wren_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/state_s" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state_s[5:0]</obj_property>
+      <obj_property name="ObjectShortName">state_s[5:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>

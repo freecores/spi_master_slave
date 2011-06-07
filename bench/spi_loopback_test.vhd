@@ -41,9 +41,14 @@ USE ieee.numeric_std.ALL;
 
 --library WORK;
 --use WORK.DEBUG_PKG.ALL;
- 
+
 ENTITY spi_loopback_test IS
-    Generic (   N : positive := 32);                                                -- 32bit serial word length is default
+    GENERIC (   
+        N : positive := 32;                                 -- 32bit serial word length is default
+        CPOL : std_logic := '0';                            -- SPI mode selection (mode 0 default)
+        CPHA : std_logic := '0';                            -- CPOL = clock polarity, CPHA = clock phase.
+        PREFETCH : positive := 1                            -- prefetch lookahead cycles
+    );                                          
 END spi_loopback_test;
  
 ARCHITECTURE behavior OF spi_loopback_test IS 
@@ -53,6 +58,11 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     --=========================================================
 
 	COMPONENT spi_loopback
+--    GENERIC (   
+--        N : positive := 32;                                                 -- 32bit serial word length is default
+--        CPOL : std_logic := '0';                                            -- SPI mode selection (mode 0 default)
+--        CPHA : std_logic := '0';                                            -- CPOL = clock polarity, CPHA = clock phase.
+--        PREFETCH : positive := 1);                                          -- prefetch lookahead cycles
 	PORT(
         ----------------MASTER-----------------------
         m_spi_clk_i : IN std_logic := 'X';
@@ -62,13 +72,15 @@ ARCHITECTURE behavior OF spi_loopback_test IS
         m_spi_sck_o : OUT std_logic;
         m_spi_mosi_o : OUT std_logic;
         m_spi_miso_i : IN std_logic := 'X';
-        m_di_i : IN std_logic_vector(31 downto 0) := (others => 'X');
-        m_do_o : OUT std_logic_vector(31 downto 0);
+        m_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
+        m_do_o : OUT std_logic_vector(N-1 downto 0);
         m_di_rdy_o : OUT std_logic;
         m_wren_i : IN std_logic := 'X';
         m_do_valid_o : OUT std_logic;
---        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
---        m_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0);
+        m_do_transfer_o : OUT std_logic;
+        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
+        m_rx_bit_reg_o : OUT std_logic;
+        m_sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0);
         ----------------SLAVE-----------------------
 		s_clk_i : IN std_logic := 'X';
 		s_rst_i : IN std_logic := 'X';
@@ -76,12 +88,13 @@ ARCHITECTURE behavior OF spi_loopback_test IS
 		s_spi_sck_i : IN std_logic := 'X';
 		s_spi_mosi_i : IN std_logic := 'X';
 		s_spi_miso_o : OUT std_logic;
-		s_di_i : IN std_logic_vector(31 downto 0) := (others => 'X');
-		s_do_o : OUT std_logic_vector(31 downto 0);
+		s_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
+		s_do_o : OUT std_logic_vector(N-1 downto 0);
 		s_di_rdy_o : OUT std_logic;
 		s_wren_i : IN std_logic := 'X';
-		s_do_valid_o : OUT std_logic
---		s_state_dbg_o : OUT std_logic_vector(5 downto 0);
+		s_do_valid_o : OUT std_logic;
+        s_do_transfer_o : OUT std_logic;
+		s_state_dbg_o : OUT std_logic_vector(5 downto 0)
 --		s_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -114,24 +127,27 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     signal di_m : std_logic_vector (N-1 downto 0) := (others => '0');
     signal do_m : std_logic_vector (N-1 downto 0);
     signal do_valid_m : std_logic;
+    signal do_transfer_m : std_logic;
     signal di_rdy_m : std_logic;
     signal wren_m : std_logic := '0';
---    signal sh_reg_m : integer;
---    signal state_m : integer;
+    signal rx_bit_reg_m : std_logic;
+    signal sh_reg_m : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal state_m : std_logic_vector (5 downto 0);
     -- slave parallel interface
     signal di_s : std_logic_vector (N-1 downto 0) := (others => '0');
     signal do_s : std_logic_vector (N-1 downto 0);
     signal do_valid_s : std_logic;
+    signal do_transfer_s : std_logic;
     signal di_rdy_s : std_logic;
     signal wren_s : std_logic := '0';
---    signal sh_reg_s : integer;
---    signal state_s : integer;
+--    signal sh_reg_s : std_logic_vector (N-1 downto 0);
+    signal state_s : std_logic_vector (5 downto 0);
 
     --=========================================================
     -- Clock period definitions
     --=========================================================
-    constant spi_2x_clk_period : time := 20 ns;     -- 33.3MHz SPI SCK clock
-    constant m_clk_period : time := 8 ns;           -- 125MHz master parallel clock
+    constant spi_2x_clk_period : time := 20 ns;     -- 25MHz SPI SCK clock
+    constant m_clk_period : time := 10 ns;          -- 100MHz master parallel clock
     constant s_clk_period : time := 8 ns;           -- 125MHz slave parallel clock
 
 BEGIN
@@ -154,8 +170,10 @@ BEGIN
         m_di_rdy_o => di_rdy_m,
         m_wren_i => wren_m,
         m_do_valid_o => do_valid_m,
---        m_state_dbg_o => state_m,
---        m_sh_reg_dbg_o => sh_reg_m,
+        m_do_transfer_o => do_transfer_m,
+        m_state_dbg_o => state_m,
+        m_rx_bit_reg_o => rx_bit_reg_m,
+        m_sh_reg_dbg_o => sh_reg_m,
         ----------------SLAVE-----------------------
 		s_clk_i => s_clk,
 		s_rst_i => rst,
@@ -167,8 +185,9 @@ BEGIN
 		s_do_o => do_s,
 		s_di_rdy_o => di_rdy_s,
 		s_wren_i => wren_s,
-		s_do_valid_o => do_valid_s
---		s_state_dbg_o => state_s,
+		s_do_valid_o => do_valid_s,
+        s_do_transfer_o => do_transfer_s,
+		s_state_dbg_o => state_s
 --		s_sh_reg_dbg_o => sh_reg_s
 	);
 
@@ -202,7 +221,7 @@ BEGIN
     --=========================================================
     -- rst_i process
     --=========================================================
-    rst <= '0', '1' after 100 ns, '0' after 200 ns;
+    rst <= '0', '1' after 20 ns, '0' after 50 ns;
     
     --=========================================================
     -- Master interface process
@@ -254,12 +273,12 @@ BEGIN
         for cnt in 0 to fifo_memory_size-1 loop
             fifo_head := cnt;                               -- pre-compute next pointer 
             wait until di_rdy_s = '1';                      -- wait shift register request for data
-            wait until s_clk'event and s_clk = '1';           -- sync fifo data load at next rising edge
+            wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             di_s <= fifo_memory(fifo_head);                 -- place data into tx_data input bus
-            wait until s_clk'event and s_clk = '1';           -- sync fifo data load at next rising edge
+            wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             wren_s <= '1';                                  -- write data into shift register
             wait until di_rdy_s = '0';                      -- wait data be accepted to compute next pointer
-            wait until s_clk'event and s_clk = '1';           -- sync fifo data load at next rising edge
+            wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             wren_s <= '0';                                  -- remove write enable signal
         end loop;
         wait;

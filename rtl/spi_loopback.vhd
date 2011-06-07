@@ -29,8 +29,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+--library WORK;
+--use WORK.ALL;
+
 entity spi_loopback is
-    port(
+    Generic (   
+        N : positive := 32;                                         -- 32bit serial word length is default
+        CPOL : std_logic := '0';                                    -- SPI mode selection (mode 0 default)
+        CPHA : std_logic := '0';                                    -- CPOL = clock polarity, CPHA = clock phase.
+        PREFETCH : positive := 1                                    -- prefetch lookahead cycles
+        );                                  
+    Port(
         ----------------MASTER-----------------------
         m_spi_clk_i : IN std_logic;
         m_par_clk_i : IN std_logic;
@@ -39,13 +48,15 @@ entity spi_loopback is
         m_spi_sck_o : OUT std_logic;
         m_spi_mosi_o : OUT std_logic;
         m_spi_miso_i : IN std_logic;
-        m_di_i : IN std_logic_vector(31 downto 0);
-        m_do_o : OUT std_logic_vector(31 downto 0);
+        m_di_i : IN std_logic_vector(N-1 downto 0);
+        m_do_o : OUT std_logic_vector(N-1 downto 0);
         m_di_rdy_o : OUT std_logic;
         m_wren_i : IN std_logic;          
         m_do_valid_o : OUT std_logic;
---        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
---        m_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0);
+        m_do_transfer_o : OUT std_logic;
+        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
+        m_rx_bit_reg_o : OUT std_logic;
+        m_sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0);
         ----------------SLAVE-----------------------
 		s_clk_i : IN std_logic;
 		s_rst_i : IN std_logic;
@@ -53,58 +64,80 @@ entity spi_loopback is
 		s_spi_sck_i : IN std_logic;
 		s_spi_mosi_i : IN std_logic;
 		s_spi_miso_o : OUT std_logic;
-		s_di_i : IN std_logic_vector(31 downto 0);
-		s_do_o : OUT std_logic_vector(31 downto 0);
+		s_di_i : IN std_logic_vector(N-1 downto 0);
+		s_do_o : OUT std_logic_vector(N-1 downto 0);
 		s_di_rdy_o : OUT std_logic;
 		s_wren_i : IN std_logic;          
-		s_do_valid_o : OUT std_logic
---		s_state_dbg_o : OUT std_logic_vector(5 downto 0);
+		s_do_valid_o : OUT std_logic;
+        s_do_transfer_o : OUT std_logic;
+		s_state_dbg_o : OUT std_logic_vector(5 downto 0)
 --		s_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
         );
 end spi_loopback;
 
-architecture Behavioral of spi_loopback is
+architecture Structural of spi_loopback is
 
 	COMPONENT spi_master
+    GENERIC (   
+        N : positive := 32;
+        CPOL : std_logic := '0';
+        CPHA : std_logic := '0';
+        PREFETCH : positive := 1
+        );
 	PORT(
 		spi_2x_clk_i : IN std_logic;
 		par_clk_i : IN std_logic;
 		rst_i : IN std_logic;
 		spi_miso_i : IN std_logic;
-		di_i : IN std_logic_vector(31 downto 0);
+		di_i : IN std_logic_vector(N-1 downto 0);
 		wren_i : IN std_logic;          
 		spi_ssel_o : OUT std_logic;
 		spi_sck_o : OUT std_logic;
 		spi_mosi_o : OUT std_logic;
-		do_o : OUT std_logic_vector(31 downto 0);
+		do_o : OUT std_logic_vector(N-1 downto 0);
 		di_rdy_o : OUT std_logic;
-		do_valid_o : OUT std_logic
---		state_dbg_o : OUT std_logic_vector(5 downto 0);
---		sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
+		do_valid_o : OUT std_logic;
+        do_transfer_o : OUT std_logic;
+		state_dbg_o : OUT std_logic_vector(5 downto 0);
+        rx_bit_reg_o : OUT std_logic;
+		sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0)
 		);
 	END COMPONENT;
 
 	COMPONENT spi_slave
+    GENERIC (   
+        N : positive := 32;
+        CPOL : std_logic := '0';
+        CPHA : std_logic := '0';
+        PREFETCH : positive := 1
+        );
 	PORT(
 		clk_i : IN std_logic;
 		rst_i : IN std_logic;
 		spi_ssel_i : IN std_logic;
 		spi_sck_i : IN std_logic;
 		spi_mosi_i : IN std_logic;
-		di_i : IN std_logic_vector(31 downto 0);
+		di_i : IN std_logic_vector(N-1 downto 0);
 		wren_i : IN std_logic;          
 		spi_miso_o : OUT std_logic;
-		do_o : OUT std_logic_vector(31 downto 0);
+		do_o : OUT std_logic_vector(N-1 downto 0);
 		di_rdy_o : OUT std_logic;
-		do_valid_o : OUT std_logic
---		state_dbg_o : OUT std_logic_vector(5 downto 0);
---		sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
+		do_valid_o : OUT std_logic;
+        do_transfer_o : OUT std_logic;
+		state_dbg_o : OUT std_logic_vector(5 downto 0)
+--		sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0)
 		);
 	END COMPONENT;
 
 begin
 
-	Inst_spi_master: spi_master PORT MAP(
+	Inst_spi_master: spi_master 
+    GENERIC MAP (
+        N => N,
+        CPOL => CPOL,
+        CPHA => CPHA,
+        PREFETCH => PREFETCH)
+    PORT MAP(
 		spi_2x_clk_i => m_spi_clk_i,
 		par_clk_i => m_par_clk_i,
 		rst_i => m_rst_i,
@@ -116,12 +149,20 @@ begin
 		do_o => m_do_o,
 		di_rdy_o => m_di_rdy_o,
 		wren_i => m_wren_i,
-		do_valid_o => m_do_valid_o
---		state_dbg_o => m_state_dbg_o,
---		sh_reg_dbg_o => m_sh_reg_dbg_o
+		do_valid_o => m_do_valid_o,
+        do_transfer_o => m_do_transfer_o,
+		state_dbg_o => m_state_dbg_o,
+        rx_bit_reg_o => m_rx_bit_reg_o,
+		sh_reg_dbg_o => m_sh_reg_dbg_o
 	);
 
-	Inst_spi_slave: spi_slave PORT MAP(
+	Inst_spi_slave: spi_slave 
+    GENERIC MAP (
+        N => N,
+        CPOL => CPOL,
+        CPHA => CPHA,
+        PREFETCH => PREFETCH)
+    PORT MAP(
 		clk_i => s_clk_i,
 		rst_i => s_rst_i,
 		spi_ssel_i => s_spi_ssel_i,
@@ -132,12 +173,13 @@ begin
 		do_o => s_do_o,
 		di_rdy_o => s_di_rdy_o,
 		wren_i => s_wren_i,
-		do_valid_o => s_do_valid_o
---		state_dbg_o => s_state_dbg_o,
+		do_valid_o => s_do_valid_o,
+        do_transfer_o => s_do_transfer_o,
+		state_dbg_o => s_state_dbg_o
 --		sh_reg_dbg_o => s_sh_reg_dbg_o
 	);
 
-end Behavioral;
+end Structural;
 
 
 
