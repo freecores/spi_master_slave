@@ -3,8 +3,8 @@
 -- Engineer:        Jonny Doin
 --
 -- Create Date:     22:59:18 04/25/2011
--- Design Name:   
--- Module Name:     C:/dropbox/Dropbox/VHDL_training/projects/SPI_interface/spi_loopback_test.vhd
+-- Design Name:     spi_master_slave
+-- Module Name:     spi_master_slave/spi_loopback_test.vhd
 -- Project Name:    SPI_interface
 -- Target Device:   Spartan-6
 -- Tool versions:   ISE 13.1
@@ -25,7 +25,7 @@
 -- 
 -- Revision:
 -- Revision 0.01 - File Created
--- Revision 1.05 - Implemented FIFO simulation for each interface.
+-- Revision 0.10 - Implemented FIFO simulation for each interface.
 -- Additional Comments:
 --
 -- Notes: 
@@ -39,15 +39,12 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
---library WORK;
---use WORK.DEBUG_PKG.ALL;
-
 ENTITY spi_loopback_test IS
     GENERIC (   
         N : positive := 32;                                 -- 32bit serial word length is default
         CPOL : std_logic := '0';                            -- SPI mode selection (mode 0 default)
-        CPHA : std_logic := '0';                            -- CPOL = clock polarity, CPHA = clock phase.
-        PREFETCH : positive := 1                            -- prefetch lookahead cycles
+        CPHA : std_logic := '1';                            -- CPOL = clock polarity, CPHA = clock phase.
+        PREFETCH : positive := 2                            -- prefetch lookahead cycles
     );                                          
 END spi_loopback_test;
  
@@ -57,53 +54,56 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     -- Component Declarations for the Unit Under Test (UUT)
     --=========================================================
 
-	COMPONENT spi_loopback
---    GENERIC (   
---        N : positive := 32;                                                 -- 32bit serial word length is default
---        CPOL : std_logic := '0';                                            -- SPI mode selection (mode 0 default)
---        CPHA : std_logic := '0';                                            -- CPOL = clock polarity, CPHA = clock phase.
---        PREFETCH : positive := 1);                                          -- prefetch lookahead cycles
-	PORT(
+    COMPONENT spi_loopback
+    PORT(
         ----------------MASTER-----------------------
-        m_spi_clk_i : IN std_logic := 'X';
-        m_par_clk_i : IN std_logic := 'X';
-        m_rst_i : IN std_logic := 'X';
+        m_spi_2x_clk_i : IN std_logic := 'X';
+        m_clk_i : IN std_logic := 'X';
+        m_rst_i : IN std_logic;
         m_spi_ssel_o : OUT std_logic;
         m_spi_sck_o : OUT std_logic;
         m_spi_mosi_o : OUT std_logic;
         m_spi_miso_i : IN std_logic := 'X';
+        m_di_req_o : OUT std_logic;
         m_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
-        m_do_o : OUT std_logic_vector(N-1 downto 0);
-        m_di_rdy_o : OUT std_logic;
         m_wren_i : IN std_logic := 'X';
         m_do_valid_o : OUT std_logic;
+        m_do_o : OUT std_logic_vector(N-1 downto 0);
+        ----- debug -----
         m_do_transfer_o : OUT std_logic;
-        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
+        m_wren_o : OUT std_logic;
+        m_wren_ack_o : OUT std_logic;
         m_rx_bit_reg_o : OUT std_logic;
+        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
+        m_core_clk_o : OUT std_logic;
+        m_core_n_clk_o : OUT std_logic;
         m_sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0);
         ----------------SLAVE-----------------------
-		s_clk_i : IN std_logic := 'X';
-		s_rst_i : IN std_logic := 'X';
-		s_spi_ssel_i : IN std_logic := 'X';
-		s_spi_sck_i : IN std_logic := 'X';
-		s_spi_mosi_i : IN std_logic := 'X';
-		s_spi_miso_o : OUT std_logic;
-		s_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
-		s_do_o : OUT std_logic_vector(N-1 downto 0);
-		s_di_rdy_o : OUT std_logic;
-		s_wren_i : IN std_logic := 'X';
-		s_do_valid_o : OUT std_logic;
+        s_clk_i : IN std_logic := 'X';
+        s_spi_ssel_i : IN std_logic := 'X';
+        s_spi_sck_i : IN std_logic := 'X';
+        s_spi_mosi_i : IN std_logic := 'X';
+        s_spi_miso_o : OUT std_logic;
+        s_di_req_o : OUT std_logic;
+        s_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
+        s_wren_i : IN std_logic := 'X';
+        s_do_valid_o : OUT std_logic;
+        s_do_o : OUT std_logic_vector(N-1 downto 0);
+        ----- debug -----
         s_do_transfer_o : OUT std_logic;
-		s_state_dbg_o : OUT std_logic_vector(5 downto 0)
---		s_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
-		);
-	END COMPONENT;
+        s_wren_o : OUT std_logic;
+        s_wren_ack_o : OUT std_logic;
+        s_rx_bit_reg_o : OUT std_logic;
+        s_state_dbg_o : OUT std_logic_vector(5 downto 0)
+--      s_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
+        );
+    END COMPONENT;
 
 
     --=========================================================
     -- constants
     --=========================================================
-    constant fifo_memory_size : integer := 8;
+    constant fifo_memory_size : integer := 16;
     
     --=========================================================
     -- types
@@ -117,7 +117,7 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     signal spi_2x_clk : std_logic := '0';           -- This is the SPI_SCK clock source. Must be 2x spi sck.
     signal m_clk : std_logic := '0';                -- clock domain for the master parallel interface. Must be faster than spi bus sck.
     signal s_clk : std_logic := '0';                -- clock domain for the slave parallel interface. Must be faster than spi bus sck.
-    signal rst : std_logic := 'X';
+    signal rst : std_logic := 'U';
     -- spi bus wires
     signal spi_sck : std_logic;
     signal spi_ssel : std_logic;
@@ -125,29 +125,37 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     signal spi_mosi : std_logic;
     -- master parallel interface
     signal di_m : std_logic_vector (N-1 downto 0) := (others => '0');
-    signal do_m : std_logic_vector (N-1 downto 0);
+    signal do_m : std_logic_vector (N-1 downto 0) := (others => 'U');
     signal do_valid_m : std_logic;
     signal do_transfer_m : std_logic;
-    signal di_rdy_m : std_logic;
+    signal di_req_m : std_logic;
     signal wren_m : std_logic := '0';
+    signal wren_o_m : std_logic := 'U';
+    signal wren_ack_o_m : std_logic := 'U';
     signal rx_bit_reg_m : std_logic;
-    signal sh_reg_m : std_logic_vector (N-1 downto 0) := (others => '0');
     signal state_m : std_logic_vector (5 downto 0);
+    signal core_clk_o_m : std_logic;
+    signal core_n_clk_o_m : std_logic;
+    signal sh_reg_m : std_logic_vector (N-1 downto 0) := (others => '0');
     -- slave parallel interface
     signal di_s : std_logic_vector (N-1 downto 0) := (others => '0');
     signal do_s : std_logic_vector (N-1 downto 0);
     signal do_valid_s : std_logic;
     signal do_transfer_s : std_logic;
-    signal di_rdy_s : std_logic;
+    signal di_req_s : std_logic;
     signal wren_s : std_logic := '0';
---    signal sh_reg_s : std_logic_vector (N-1 downto 0);
+    signal wren_o_s : std_logic := 'U';
+    signal wren_ack_o_s : std_logic := 'U';
+    signal rx_bit_reg_s : std_logic;
     signal state_s : std_logic_vector (5 downto 0);
+--    signal sh_reg_s : std_logic_vector (N-1 downto 0);
 
     --=========================================================
     -- Clock period definitions
     --=========================================================
-    constant spi_2x_clk_period : time := 20 ns;     -- 25MHz SPI SCK clock
-    constant m_clk_period : time := 10 ns;          -- 100MHz master parallel clock
+    constant spi_2x_clk_period : time := 15 ns;     -- 33MHz SPI SCK clock
+    constant spi_2x_clk_skew : time := 1333 ps;     -- skew the clock, to test critical data setup times
+    constant m_clk_period : time := 9 ns;           -- 100MHz master parallel clock
     constant s_clk_period : time := 8 ns;           -- 125MHz slave parallel clock
 
 BEGIN
@@ -156,50 +164,62 @@ BEGIN
     -- instantiation of UUT
     --=========================================================
 
-	Inst_spi_loopback: spi_loopback PORT MAP(
+    Inst_spi_loopback: spi_loopback PORT MAP(
         ----------------MASTER-----------------------
-        m_spi_clk_i => spi_2x_clk,
-        m_par_clk_i => m_clk,
+        m_spi_2x_clk_i => spi_2x_clk,
+        m_clk_i => m_clk,
         m_rst_i => rst,
         m_spi_ssel_o => spi_ssel,
         m_spi_sck_o => spi_sck,
         m_spi_mosi_o => spi_mosi,
         m_spi_miso_i => spi_miso,
+        m_di_req_o => di_req_m,
         m_di_i => di_m,
-        m_do_o => do_m,
-        m_di_rdy_o => di_rdy_m,
         m_wren_i => wren_m,
         m_do_valid_o => do_valid_m,
+        m_do_o => do_m,
+        ----- debug -----
         m_do_transfer_o => do_transfer_m,
-        m_state_dbg_o => state_m,
+        m_wren_o => wren_o_m,
+        m_wren_ack_o => wren_ack_o_m,
         m_rx_bit_reg_o => rx_bit_reg_m,
+        m_state_dbg_o => state_m,
+        m_core_clk_o => core_clk_o_m,
+        m_core_n_clk_o => core_n_clk_o_m,
         m_sh_reg_dbg_o => sh_reg_m,
         ----------------SLAVE-----------------------
-		s_clk_i => s_clk,
-		s_rst_i => rst,
-		s_spi_ssel_i => spi_ssel,
-		s_spi_sck_i => spi_sck,
-		s_spi_mosi_i => spi_mosi,
-		s_spi_miso_o => spi_miso,
-		s_di_i => di_s,
-		s_do_o => do_s,
-		s_di_rdy_o => di_rdy_s,
-		s_wren_i => wren_s,
-		s_do_valid_o => do_valid_s,
+        s_clk_i => s_clk,
+        s_spi_ssel_i => spi_ssel,
+        s_spi_sck_i => spi_sck,
+        s_spi_mosi_i => spi_mosi,
+        s_spi_miso_o => spi_miso,
+        s_di_req_o => di_req_s,
+        s_di_i => di_s,
+        s_wren_i => wren_s,
+        s_do_valid_o => do_valid_s,
+        s_do_o => do_s,
+        ----- debug -----
         s_do_transfer_o => do_transfer_s,
-		s_state_dbg_o => state_s
---		s_sh_reg_dbg_o => sh_reg_s
-	);
+        s_wren_o => wren_o_s,
+        s_wren_ack_o => wren_ack_o_s,
+        s_rx_bit_reg_o => rx_bit_reg_s,
+        s_state_dbg_o => state_s
+--        s_sh_reg_dbg_o => sh_reg_s
+    );
 
     --=========================================================
     -- Clock generator processes
     --=========================================================
     spi_2x_clk_process : process
     begin
-        spi_2x_clk <= '0';
-        wait for spi_2x_clk_period/2;
         spi_2x_clk <= '1';
-        wait for spi_2x_clk_period/2;
+        wait for spi_2x_clk_skew;
+        loop
+            spi_2x_clk <= '0';
+            wait for spi_2x_clk_period/2;
+            spi_2x_clk <= '1';
+            wait for spi_2x_clk_period/2;
+        end loop;
     end process spi_2x_clk_process;
 
     m_clk_process : process
@@ -221,14 +241,15 @@ BEGIN
     --=========================================================
     -- rst_i process
     --=========================================================
-    rst <= '0', '1' after 20 ns, '0' after 50 ns;
+    rst <= '0', '1' after 20 ns, '0' after 100 ns;
     
     --=========================================================
     -- Master interface process
     --=========================================================
     master_tx_fifo_proc: process is
         variable fifo_memory : fifo_memory_type := 
-            (X"87654321",X"abcdef01",X"faceb007",X"10203049",X"85a5a5a5",X"7aaa5551",X"7adecabe",X"57564789");
+            (X"87654321",X"abcdef01",X"faceb007",X"10203049",X"85a5a5a5",X"7aaa5551",X"7adecabe",X"57564789",
+             X"12345678",X"beefbeef",X"fee1600d",X"f158ba17",X"5ee1a7e3",X"101096da",X"600ddeed",X"deaddead");
         variable fifo_head : integer range 0 to fifo_memory_size-1;
     begin
         -- synchronous rst_i
@@ -238,17 +259,31 @@ BEGIN
         wren_m <= '0';
         fifo_head := 0;
         wait until rst = '0';
+        wait until di_req_m = '1';                          -- wait shift register request for data
         -- load next fifo contents into shift register
-        for cnt in 0 to fifo_memory_size-1 loop
+        for cnt in 0 to (fifo_memory_size/2)-1 loop
             fifo_head := cnt;                               -- pre-compute next pointer 
-            wait until di_rdy_m = '1';                      -- wait shift register request for data
-            wait until m_clk'event and m_clk = '1';           -- sync fifo data load at next rising edge
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
             di_m <= fifo_memory(fifo_head);                 -- place data into tx_data input bus
-            wait until m_clk'event and m_clk = '1';           -- sync fifo data load at next rising edge
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
             wren_m <= '1';                                  -- write data into spi master
-            wait until di_rdy_m = '0';                      -- wait data be accepted to compute next pointer
-            wait until m_clk'event and m_clk = '1';           -- sync fifo data load at next rising edge
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
             wren_m <= '0';                                  -- remove write enable signal
+            wait until di_req_m = '1';                      -- wait shift register request for data
+        end loop;
+        wait until spi_ssel = '1';
+        wait for 2000 ns;
+        for cnt in (fifo_memory_size/2) to fifo_memory_size-1 loop
+            fifo_head := cnt;                               -- pre-compute next pointer 
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
+            di_m <= fifo_memory(fifo_head);                 -- place data into tx_data input bus
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
+            wren_m <= '1';                                  -- write data into spi master
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
+            wait until m_clk'event and m_clk = '1';         -- sync fifo data load at next rising edge
+            wren_m <= '0';                                  -- remove write enable signal
+            wait until di_req_m = '1';                      -- wait shift register request for data
         end loop;
         wait;
     end process master_tx_fifo_proc;
@@ -259,7 +294,8 @@ BEGIN
     --=========================================================
     slave_tx_fifo_proc: process is
         variable fifo_memory : fifo_memory_type := 
-            (X"90201031",X"97640231",X"ef55aaf1",X"babaca51",X"b00b1ee5",X"51525354",X"81828384",X"91929394");
+            (X"90201031",X"97640231",X"ef55aaf1",X"babaca51",X"b00b1ee5",X"51525354",X"81828384",X"91929394",
+             X"be575ec5",X"2fa57410",X"cafed0ce",X"afadab0a",X"bac7ed1a",X"f05fac75",X"2acbac7e",X"12345678");
         variable fifo_head : integer range 0 to fifo_memory_size-1;
     begin
         -- synchronous rst_i
@@ -269,28 +305,20 @@ BEGIN
         wren_s <= '0';
         fifo_head := 0;
         wait until rst = '0';
+        wait until di_req_s = '1';                          -- wait shift register request for data
         -- load next fifo contents into shift register
         for cnt in 0 to fifo_memory_size-1 loop
             fifo_head := cnt;                               -- pre-compute next pointer 
-            wait until di_rdy_s = '1';                      -- wait shift register request for data
             wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             di_s <= fifo_memory(fifo_head);                 -- place data into tx_data input bus
             wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             wren_s <= '1';                                  -- write data into shift register
-            wait until di_rdy_s = '0';                      -- wait data be accepted to compute next pointer
+            wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             wait until s_clk'event and s_clk = '1';         -- sync fifo data load at next rising edge
             wren_s <= '0';                                  -- remove write enable signal
+            wait until di_req_s = '1';                      -- wait shift register request for data
         end loop;
         wait;
     end process slave_tx_fifo_proc;
  
-    --=========================================================
-    -- Debug processes
-    --=========================================================
-
---    sh_reg_m <= dbg_shift_m;
---    state_m <= dbg_state_m;
---    sh_reg_s <= dbg_shift_s;
---    state_s <= dbg_state_s;
-
 END ARCHITECTURE behavior;

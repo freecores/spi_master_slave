@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="C:/dropbox/Dropbox/VHDL_training/ISE_projects/spi_master_slave/spi_loopback_test_isim_par.wdb" id="1" type="auto">
+      <db_ref path="D:/Dropbox/VHDL_training/ISE_projects/spi_master_slave/spi_loopback_test_isim_translate.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="spi_loopback_test" />
@@ -16,10 +16,26 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="24" />
+   <WVObjectSize size="33" />
+   <wvobject fp_name="/spi_loopback_test/cpol" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpol</obj_property>
+      <obj_property name="ObjectShortName">cpol</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/cpha" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cpha</obj_property>
+      <obj_property name="ObjectShortName">cpha</obj_property>
+   </wvobject>
    <wvobject fp_name="/spi_loopback_test/spi_2x_clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">spi_2x_clk</obj_property>
       <obj_property name="ObjectShortName">spi_2x_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/core_clk_o_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">core_clk_o_m</obj_property>
+      <obj_property name="ObjectShortName">core_clk_o_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/core_n_clk_o_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">core_n_clk_o_m</obj_property>
+      <obj_property name="ObjectShortName">core_n_clk_o_m</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/m_clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">m_clk</obj_property>
@@ -40,6 +56,10 @@
    <wvobject fp_name="/spi_loopback_test/spi_mosi" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">spi_mosi</obj_property>
       <obj_property name="ObjectShortName">spi_mosi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/rx_bit_reg_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rx_bit_reg_s</obj_property>
+      <obj_property name="ObjectShortName">rx_bit_reg_s</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/spi_miso" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">spi_miso</obj_property>
@@ -67,9 +87,9 @@
       <obj_property name="ElementShortName">do_valid_m</obj_property>
       <obj_property name="ObjectShortName">do_valid_m</obj_property>
    </wvobject>
-   <wvobject fp_name="/spi_loopback_test/di_rdy_m" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">di_rdy_m</obj_property>
-      <obj_property name="ObjectShortName">di_rdy_m</obj_property>
+   <wvobject fp_name="/spi_loopback_test/di_req_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">di_req_m</obj_property>
+      <obj_property name="ObjectShortName">di_req_m</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/di_m" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">di_m[31:0]</obj_property>
@@ -79,6 +99,16 @@
    <wvobject fp_name="/spi_loopback_test/wren_m" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">wren_m</obj_property>
       <obj_property name="ObjectShortName">wren_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_o_m" type="logic" db_ref_id="1">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wren_o_m</obj_property>
+      <obj_property name="ObjectShortName">wren_o_m</obj_property>
+      <obj_property name="label">wren_o_m</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_ack_o_m" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wren_ack_o_m</obj_property>
+      <obj_property name="ObjectShortName">wren_ack_o_m</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/state_m" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">state_m[5:0]</obj_property>
@@ -102,9 +132,9 @@
       <obj_property name="ElementShortName">do_valid_s</obj_property>
       <obj_property name="ObjectShortName">do_valid_s</obj_property>
    </wvobject>
-   <wvobject fp_name="/spi_loopback_test/di_rdy_s" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">di_rdy_s</obj_property>
-      <obj_property name="ObjectShortName">di_rdy_s</obj_property>
+   <wvobject fp_name="/spi_loopback_test/di_req_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">di_req_s</obj_property>
+      <obj_property name="ObjectShortName">di_req_s</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/di_s" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">di_s[31:0]</obj_property>
@@ -114,6 +144,14 @@
    <wvobject fp_name="/spi_loopback_test/wren_s" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">wren_s</obj_property>
       <obj_property name="ObjectShortName">wren_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_o_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wren_o_s</obj_property>
+      <obj_property name="ObjectShortName">wren_o_s</obj_property>
+   </wvobject>
+   <wvobject fp_name="/spi_loopback_test/wren_ack_o_s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wren_ack_o_s</obj_property>
+      <obj_property name="ObjectShortName">wren_ack_o_s</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/state_s" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">state_s[5:0]</obj_property>
