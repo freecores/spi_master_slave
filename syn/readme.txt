@@ -1,12 +1,16 @@
+SPI_MASTER_ATLYS
+================
+
 This is a ISE 13.1 project to test the spi_master.vhd model in silicon.
 
-The target board is a Digilent Atlys board (Spartan-6 @ 100MHz), and the circuit was tested at different SPI clock frequencies.
+The target board is a Digilent Atlys FPGA board (Spartan-6 @ 100MHz), and the circuit was tested at different SPI clock frequencies.
 
 See the scope screenshots in the spi_master_scope_photos.zip file for each SPI frequency tested.
 
 This circuit also includes a very robust debouncing circuit to use with multiple inputs. The model, "grp_debouncer.vhd" is also published under a LGPL license.
 
 The files are:
+-------------
 
 spi_master.vhd			vhdl model for the spi_master interface
 grp_debouncer.vhd		vhdl model for the switch debouncer
@@ -28,3 +32,4 @@ In any case, thank you very much for testing this core.
 
 Jonny Doin
 jdoin@opencores.org
+

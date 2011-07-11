@@ -60,19 +60,19 @@
 --      PARALLEL READ INTERFACE
 --      =======================
 --      An internal buffer is used to copy the internal shift register data to drive the 'do_o' port. When a complete word is received,
---      the core shift register is transferred to the buffer, at the rising edge of the spi clock, 'spi_2x_clk_i'.
---      The signal 'do_valid_o' is set one 'spi_2x_clk_i' clock after, to directly drive a synchronous memory or fifo write enable.
+--      the core shift register is transferred to the buffer, at the rising edge of the spi clock, 'spi_clk'.
+--      The signal 'do_valid_o' is set one 'spi_clk' clock after, to directly drive a synchronous memory or fifo write enable.
 --      'do_valid_o' is synchronous to the parallel interface clock, and changes only on rising edges of 'pclk_i'.
 --      When the interface is idle, data at the 'do_o' port holds the last word received.
 --
 --      PARALLEL READ SEQUENCE
 --      ======================
 --                      ______        ______        ______        ______   
---      spi_2x_clk_i     bit1 \______/ bitN \______/bitN-1\______/bitN-2\__...  -- spi 2x base clock
+--      spi_clk          bit1 \______/ bitN \______/bitN-1\______/bitN-2\__...  -- spi 2x base clock
 --                      _    __    __    __    __    __    __    __    __  
 --      pclk_i           \__/  \__/  \__/  \__/  \__/  \__/  \__/  \__/  \_...  -- parallel interface clock (may be async to sclk_i)
 --                      _____________ _____________________________________...  -- 1) rx data is transferred to 'do_buffer_reg'
---      do_o            ___old_data__X__________new_data___________________...  --    after last rx bit, at rising 'spi_2x_clk_i'.
+--      do_o            ___old_data__X__________new_data___________________...  --    after last rx bit, at rising 'spi_clk'.
 --                                                   ____________               
 --      do_valid_o      ____________________________/            \_________...  -- 2) 'do_valid_o' strobed for 2 'pclk_i' cycles
 --                                                                              --    on the 3rd 'pclk_i' rising edge.
@@ -87,7 +87,7 @@
 --
 ------------------------------ COPYRIGHT NOTICE -----------------------------------------------------------------------
 --                                                                   
---      This file is part of the SPI MASTER/SLAVE INTERFACE project http://opencores.org/project,spi_master_slave                
+--      This file is part of the SPI MASTER/SLAVE INTERFACE project http://opencores.org/project,spi_master_slave
 --                                                                   
 --      Author(s):      Jonny Doin, jdoin@opencores.org
 --                                                                   
@@ -128,12 +128,16 @@
 -- 2011/06/14   v0.97.0083  [JD]    (bug CPHA effect) : redesigned SCK output circuit.
 --                                  (minor bug) : removed fsm registers from (not rst_i) chip enable.
 -- 2011/06/15   v0.97.0086  [JD]    removed master MISO input register, to relax MISO data setup time (to get higher speed).
---
+-- 2011/07/09   v1.00.0095  [JD]    changed all clocking scheme to use a single high-speed clock with clock enables to control lower 
+--                                  frequency sequential circuits, to preserve clocking resources and avoid path delay glitches.
+-- 2011/07/10   v1.00.0098  [JD]    implemented SCK clock divider circuit to generate spi clock directly from system clock.
+-- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave in silicon at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 
+--                                  7.1428MHz, 6.25MHz, 1MHz and 500kHz. The core proved very robust at all tested frequencies.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
 --  ====
---
+--      > verify the receive interface in silicon, and determine the top usable frequency.
 --
 -----------------------------------------------------------------------------------------------------------------------
 library ieee;
@@ -165,10 +169,10 @@ entity spi_master is
         spi_mosi_o : out std_logic;                                     -- spi bus mosi output
         spi_miso_i : in std_logic := 'X';                               -- spi bus spi_miso_i input
         di_req_o : out std_logic;                                       -- preload lookahead data request line
-        di_i : in  std_logic_vector (N-1 downto 0) := (others => 'X');  -- parallel data in (clocked on rising spi_2x_clk_i after last bit)
+        di_i : in  std_logic_vector (N-1 downto 0) := (others => 'X');  -- parallel data in (clocked on rising spi_clk after last bit)
         wren_i : in std_logic := 'X';                                   -- user data write enable, starts transmission when interface is idle
-        do_valid_o : out std_logic;                                     -- do_o data valid signal, valid during one spi_2x_clk_i rising edge.
-        do_o : out  std_logic_vector (N-1 downto 0);                    -- parallel output (clocked on rising spi_2x_clk_i after last bit)
+        do_valid_o : out std_logic;                                     -- do_o data valid signal, valid during one spi_clk rising edge.
+        do_o : out  std_logic_vector (N-1 downto 0);                    -- parallel output (clocked on rising spi_clk after last bit)
         --- debug ports: can be removed for the application circuit ---
         do_transfer_o : out std_logic;                                  -- debug: internal transfer driver
         wren_o : out std_logic;                                         -- debug: internal state of the wren_i pulse stretcher
@@ -185,10 +189,10 @@ end spi_master;
 
 --================================================================================================================
 -- this architecture is a pipelined register-transfer description.
--- all signals are clocked at the rising edge of the system clock 'spi_2x_clk_i'.
+-- all signals are clocked at the rising edge of the system clock 'sclk_i'.
 --================================================================================================================
 architecture rtl of spi_master is
-    -- core clocks, generated from 'spi_2x_clk_i': initialized to differential values
+    -- core clocks, generated from 'sclk_i': initialized to differential values
     signal core_clk : std_logic := '0';     -- continuous core clock, positive logic
     signal core_n_clk : std_logic := '1';   -- continuous core clock, negative logic
     signal core_ce : std_logic := '0';      -- core clock enable, positive logic
@@ -291,7 +295,7 @@ begin
     -- Each phase is selected so that all the registers can be clocked with a rising edge on all SPI
     -- modes, by a single high-speed global clock, preserving clock resources.
     -----------------------------------------------------------------------------------------------
-    -- generate the core clock enables from the serial high-speed input clock
+    -- generate the 2x spi base clock enable from the serial high-speed input clock
     spi_2x_ce_gen_proc: process (sclk_i) is
         variable clk_cnt : integer range SPI_2X_CLK_DIV-1 downto 0 := 0;
     begin
@@ -306,7 +310,7 @@ begin
         end if;
     end process spi_2x_ce_gen_proc;
     -----------------------------------------------------------------------------------------------
-    -- generate the core antiphase clocks and clock enables.
+    -- generate the core antiphase clocks and clock enables from the 2x base CE.
     core_clock_gen_proc : process (sclk_i) is
     begin
         if sclk_i'event and sclk_i = '1' then
@@ -349,7 +353,7 @@ begin
             samp_ce <= core_n_ce;
         end generate;
     -----------------------------------------------------------------------------------------------
-    -- FSM clock generation: generate 'fsm_ce' from core_ce or core_n_ce depending on CPHA
+    -- FSM clock enable generation: generate 'fsm_ce' from core_ce or core_n_ce depending on CPHA
     fsm_ce_cpha_0_proc :  
         if CPHA = '0' generate
         begin
