@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="D:/Dropbox/VHDL_training/ISE_projects/spi_master_slave/spi_loopback_test_isim_translate.wdb" id="1" type="auto">
+      <db_ref path="C:/dropbox/Dropbox/VHDL_training/ISE_projects/spi_master_slave/spi_loopback_test_isim_par.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="spi_loopback_test" />
@@ -16,7 +16,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="33" />
+   <WVObjectSize size="32" />
    <wvobject fp_name="/spi_loopback_test/cpol" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">cpol</obj_property>
       <obj_property name="ObjectShortName">cpol</obj_property>
@@ -24,10 +24,6 @@
    <wvobject fp_name="/spi_loopback_test/cpha" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">cpha</obj_property>
       <obj_property name="ObjectShortName">cpha</obj_property>
-   </wvobject>
-   <wvobject fp_name="/spi_loopback_test/spi_2x_clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">spi_2x_clk</obj_property>
-      <obj_property name="ObjectShortName">spi_2x_clk</obj_property>
    </wvobject>
    <wvobject fp_name="/spi_loopback_test/core_clk_o_m" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">core_clk_o_m</obj_property>

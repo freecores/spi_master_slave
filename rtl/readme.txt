@@ -1,22 +1,42 @@
 SPI_MASTER_SLAVE
 ----------------
 
-VHDL files for spi master/slave project:
 
-	spi_master.vhd		spi master module, can be used independently
-	spi_slave.vhd		spi slave module, can be used independently
-	spi_loopback.vhd	wrapper module for the master and slave modules
-	spi_loopback_test.vhd	testbench for the loopback module, test master against slave
-	spi_loopback.ucf	constraints file for Spartan-6, optimized for area, LUT compression.
+This project was started from the need to have a robust yet simple SPI interface core
+written in VHDL to use in generic FPGA-to-device interfacing. 
+The resulting cores generates very small and efficient circuits, that operate from very
+slow SPI clocks up to over 50MHz SPI clocks.
+
+
+VHDL files for spi master/slave project:
+---------------------------------------
+
+spi_master.vhd		spi master module, can be used independently
+spi_slave.vhd		spi slave module, can be used independently
+spi_loopback.vhd	wrapper module for simulating the master and slave modules
+spi_loopback_test.vhd	testbench for the loopback module, test master against slave
+spi_loopback.ucf	constraints for simulation: Spartan-6, area, LUT compression.
 
 
 The original development is done in Xilinx ISE 13.1, targeted to a Spartan-6 device.
 
 Verification was done in ISIM, after Place & Route, with default constraints, for the slowest 
-Spartan-6 device, synthesis generated 59 slices, and the design was tested at 40MHz for the 
-spi_2x_clk (20MHz spi SCK), and 125MHz for the parallel interfaces clocks.
-With the attached .ucf file, optimized for area and using LUT compression, synthesis generated
-44 slices, and design tested OK at 20MHz of SPI clock.
- 
+Spartan-6 device, synthesis generated 41 slices, and the design was simulated at 25MHz spi SCK, and 100MHz for the parallel interfaces clocks.
+
+
+Design verification in silicon was done in a Digilent Atlys board, and the verification project can be found at the  \trunk\syn directory, with all the required files to replicate the verification tests, including pinlock constraints for the Atlys board.
+
+
+If you have any questions or usage issues with this core, please open a thread in OpenCores forum, and I will be pleased to answer.
+
+If you find a bug or a design fault in the models, please open a bug in the OpenCores bugtracker for this project.
+
+
+In any case, thank you for testing and using this core.
+
+
+Jonny Doin
+jdoin@opencores.org
+
 
 

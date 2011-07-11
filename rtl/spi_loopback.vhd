@@ -9,6 +9,8 @@
 -- Target Devices: 
 -- Tool versions: 
 -- Description: 
+--          This is a simple wrapper for the 'spi_master' and 'spi_slave' cores, to synthesize the 2 cores and
+--          test them in the simulator.
 --
 -- Dependencies: 
 --
@@ -20,6 +22,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+library work;
+use work.all;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -29,19 +34,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
---library WORK;
---use WORK.ALL;
 
 entity spi_loopback is
     Generic (   
         N : positive := 32;                                         -- 32bit serial word length is default
         CPOL : std_logic := '0';                                    -- SPI mode selection (mode 0 default)
         CPHA : std_logic := '1';                                    -- CPOL = clock polarity, CPHA = clock phase.
-        PREFETCH : positive := 2                                    -- prefetch lookahead cycles
+        PREFETCH : positive := 2;                                   -- prefetch lookahead cycles
+        SPI_2X_CLK_DIV : positive := 5                              -- for a 100MHz sclk_i, yields a 10MHz SCK
         );                                  
     Port(
         ----------------MASTER-----------------------
-        m_spi_2x_clk_i : IN std_logic;
         m_clk_i : IN std_logic;
         m_rst_i : IN std_logic;
         m_spi_ssel_o : OUT std_logic;
@@ -84,124 +87,61 @@ entity spi_loopback is
 end spi_loopback;
 
 architecture Structural of spi_loopback is
-
-    COMPONENT spi_master
-    GENERIC (   
-        N : positive := 32;
-        CPOL : std_logic := '0';
-        CPHA : std_logic := '1';
-        PREFETCH : positive := 2
-        );
-    PORT(
-        spi_2x_clk_i : IN std_logic;
-        clk_i : IN std_logic;
-        rst_i : IN std_logic;
-        spi_ssel_o : OUT std_logic;
-        spi_sck_o : OUT std_logic;
-        spi_mosi_o : OUT std_logic;
-        spi_miso_i : IN std_logic;
-        di_req_o : OUT std_logic;
-        di_i : IN std_logic_vector(N-1 downto 0);
-        wren_i : IN std_logic;          
-        do_valid_o : OUT std_logic;
-        do_o : OUT std_logic_vector(N-1 downto 0);
-        ----- debug -----
-        do_transfer_o : OUT std_logic;
-        wren_o : OUT std_logic;
-        wren_ack_o : OUT std_logic;
-        rx_bit_reg_o : OUT std_logic;
-        state_dbg_o : OUT std_logic_vector(5 downto 0);
-        core_clk_o : OUT std_logic;
-        core_n_clk_o : OUT std_logic;
-        sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0)
-        );
-    END COMPONENT;
-
-    COMPONENT spi_slave
-    GENERIC (   
-        N : positive := 32;
-        CPOL : std_logic := '0';
-        CPHA : std_logic := '1';
-        PREFETCH : positive := 2
-        );
-    PORT(
-        clk_i : IN std_logic;
-        spi_ssel_i : IN std_logic;
-        spi_sck_i : IN std_logic;
-        spi_mosi_i : IN std_logic;
-        spi_miso_o : OUT std_logic;
-        di_req_o : OUT std_logic;
-        di_i : IN std_logic_vector(N-1 downto 0);
-        wren_i : IN std_logic;          
-        do_valid_o : OUT std_logic;
-        do_o : OUT std_logic_vector(N-1 downto 0);
-        ----- debug -----
-        do_transfer_o : OUT std_logic;
-        wren_o : OUT std_logic;
-        wren_ack_o : OUT std_logic;
-        rx_bit_reg_o : OUT std_logic;
-        state_dbg_o : OUT std_logic_vector(5 downto 0)
---		sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0)
-        );
-    END COMPONENT;
-
 begin
 
-    Inst_spi_master: spi_master 
-    GENERIC MAP (
-        N => N,
-        CPOL => CPOL,
-        CPHA => CPHA,
-        PREFETCH => PREFETCH)
-    PORT MAP(
-        spi_2x_clk_i => m_spi_2x_clk_i,
-        clk_i => m_clk_i,
-        rst_i => m_rst_i,
-        spi_ssel_o => m_spi_ssel_o,
-        spi_sck_o => m_spi_sck_o,
-        spi_mosi_o => m_spi_mosi_o,
-        spi_miso_i => m_spi_miso_i,
-        di_req_o => m_di_req_o,
-        di_i => m_di_i,
-        wren_i => m_wren_i,
-        do_valid_o => m_do_valid_o,
-        do_o => m_do_o,
-        ----- debug -----
-        do_transfer_o => m_do_transfer_o,
-        wren_o => m_wren_o,
-        wren_ack_o => m_wren_ack_o,
-        rx_bit_reg_o => m_rx_bit_reg_o,
-        state_dbg_o => m_state_dbg_o,
-        core_clk_o => m_core_clk_o,
-        core_n_clk_o => m_core_n_clk_o,
-        sh_reg_dbg_o => m_sh_reg_dbg_o
-    );
+    --=============================================================================================
+    -- Component instantiation for the SPI master port
+    --=============================================================================================
+    Inst_spi_master: entity work.spi_master(rtl)
+        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH, SPI_2X_CLK_DIV => SPI_2X_CLK_DIV)
+        port map( 
+            sclk_i => m_clk_i,                      -- system clock is used for serial and parallel ports
+            pclk_i => m_clk_i,
+            rst_i => m_rst_i,
+            spi_ssel_o => m_spi_ssel_o,
+            spi_sck_o => m_spi_sck_o,
+            spi_mosi_o => m_spi_mosi_o,
+            spi_miso_i => m_spi_miso_i,
+            di_req_o => m_di_req_o,
+            di_i => m_di_i,
+            wren_i => m_wren_i,
+            do_valid_o => m_do_valid_o,
+            do_o => m_do_o,
+            ----- debug -----
+            do_transfer_o => m_do_transfer_o,
+            wren_o => m_wren_o,
+            wren_ack_o => m_wren_ack_o,
+            rx_bit_reg_o => m_rx_bit_reg_o,
+            state_dbg_o => m_state_dbg_o,
+            core_clk_o => m_core_clk_o,
+            core_n_clk_o => m_core_n_clk_o,
+            sh_reg_dbg_o => m_sh_reg_dbg_o
+        );
 
-    Inst_spi_slave: spi_slave 
-    GENERIC MAP (
-        N => N,
-        CPOL => CPOL,
-        CPHA => CPHA,
-        PREFETCH => PREFETCH)
-    PORT MAP(
-        clk_i => s_clk_i,
-        spi_ssel_i => s_spi_ssel_i,
-        spi_sck_i => s_spi_sck_i,
-        spi_mosi_i => s_spi_mosi_i,
-        spi_miso_o => s_spi_miso_o,
-        di_req_o => s_di_req_o,
-        di_i => s_di_i,
-        wren_i => s_wren_i,
-        do_valid_o => s_do_valid_o,
-        do_o => s_do_o,
-        ----- debug -----
-        do_transfer_o => s_do_transfer_o,
-        wren_o => s_wren_o,
-        wren_ack_o => s_wren_ack_o,
-        rx_bit_reg_o => s_rx_bit_reg_o,
-        state_dbg_o => s_state_dbg_o
---		sh_reg_dbg_o => s_sh_reg_dbg_o
-    );
+    --=============================================================================================
+    -- Component instantiation for the SPI slave port
+    --=============================================================================================
+    Inst_spi_slave: entity work.spi_slave(rtl)
+        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH)
+        port map(
+            clk_i => s_clk_i,
+            spi_ssel_i => s_spi_ssel_i,
+            spi_sck_i => s_spi_sck_i,
+            spi_mosi_i => s_spi_mosi_i,
+            spi_miso_o => s_spi_miso_o,
+            di_req_o => s_di_req_o,
+            di_i => s_di_i,
+            wren_i => s_wren_i,
+            do_valid_o => s_do_valid_o,
+            do_o => s_do_o,
+            ----- debug -----
+            do_transfer_o => s_do_transfer_o,
+            wren_o => s_wren_o,
+            wren_ack_o => s_wren_ack_o,
+            rx_bit_reg_o => s_rx_bit_reg_o,
+            state_dbg_o => s_state_dbg_o
+--            sh_reg_dbg_o => s_sh_reg_dbg_o
+        );
 
 end Structural;
 

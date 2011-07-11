@@ -87,7 +87,7 @@
 --
 ------------------------------ COPYRIGHT NOTICE -----------------------------------------------------------------------
 --                                                                   
---      This file is part of the SPI MASTER/SLAVE INTERFACE project http://opencores.org/project,spi_master_slave                
+--      This file is part of the SPI MASTER/SLAVE INTERFACE project http://opencores.org/project,spi_master_slave
 --                                                                   
 --      Author(s):      Jonny Doin, jdoin@opencores.org
 --                                                                   
@@ -128,12 +128,16 @@
 -- 2011/06/14   v0.97.0083  [JD]    (bug CPHA effect) : redesigned SCK output circuit.
 --                                  (minor bug) : removed fsm registers from (not rst_i) chip enable.
 -- 2011/06/15   v0.97.0086  [JD]    removed master MISO input register, to relax MISO data setup time (to get higher speed).
---
+-- 2011/07/09   v1.00.0095  [JD]    changed all clocking scheme to use a single high-speed clock with clock enables to control lower 
+--                                  frequency sequential circuits, to preserve clocking resources and avoid path delay glitches.
+-- 2011/07/10   v1.00.0098  [JD]    implemented SCK clock divider circuit to generate spi clock directly from system clock.
+-- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave in silicon at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 
+--                                  7.1428MHz, 6.25MHz, 1MHz and 500kHz. The core proved very robust at all tested frequencies.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
 --  ====
---
+--      > verify the receive interface in silicon, and determine the top usable frequency.
 --
 -----------------------------------------------------------------------------------------------------------------------
 library ieee;

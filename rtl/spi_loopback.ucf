@@ -1,7 +1,5 @@
 
 #Created by Constraints Editor (xc6slx45t-csg484-3) - 2011/06/08
-NET "m_spi_2x_clk_i" TNM_NET = m_spi_2x_clk_i;
-TIMESPEC TS_m_spi_2x_clk_i = PERIOD "m_spi_2x_clk_i" 15 ns HIGH 50%;
 NET "s_clk_i" TNM_NET = s_clk_i;
 TIMESPEC TS_s_clk_i = PERIOD "s_clk_i" 8 ns HIGH 50%;
 #Created by Constraints Editor (xc6slx45t-csg484-3) - 2011/06/08

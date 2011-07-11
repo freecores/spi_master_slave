@@ -39,6 +39,9 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
+library work;
+use work.all;
+
 ENTITY spi_loopback_test IS
     GENERIC (   
         N : positive := 32;                                 -- 32bit serial word length is default
@@ -51,54 +54,47 @@ END spi_loopback_test;
 ARCHITECTURE behavior OF spi_loopback_test IS 
 
     --=========================================================
-    -- Component Declarations for the Unit Under Test (UUT)
+    -- Component declaration for the Unit Under Test (UUT)
     --=========================================================
 
-    COMPONENT spi_loopback
-    PORT(
-        ----------------MASTER-----------------------
-        m_spi_2x_clk_i : IN std_logic := 'X';
-        m_clk_i : IN std_logic := 'X';
-        m_rst_i : IN std_logic;
-        m_spi_ssel_o : OUT std_logic;
-        m_spi_sck_o : OUT std_logic;
-        m_spi_mosi_o : OUT std_logic;
-        m_spi_miso_i : IN std_logic := 'X';
-        m_di_req_o : OUT std_logic;
-        m_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
-        m_wren_i : IN std_logic := 'X';
-        m_do_valid_o : OUT std_logic;
-        m_do_o : OUT std_logic_vector(N-1 downto 0);
-        ----- debug -----
-        m_do_transfer_o : OUT std_logic;
-        m_wren_o : OUT std_logic;
-        m_wren_ack_o : OUT std_logic;
-        m_rx_bit_reg_o : OUT std_logic;
-        m_state_dbg_o : OUT std_logic_vector(5 downto 0);
-        m_core_clk_o : OUT std_logic;
-        m_core_n_clk_o : OUT std_logic;
-        m_sh_reg_dbg_o : OUT std_logic_vector(N-1 downto 0);
-        ----------------SLAVE-----------------------
-        s_clk_i : IN std_logic := 'X';
-        s_spi_ssel_i : IN std_logic := 'X';
-        s_spi_sck_i : IN std_logic := 'X';
-        s_spi_mosi_i : IN std_logic := 'X';
-        s_spi_miso_o : OUT std_logic;
-        s_di_req_o : OUT std_logic;
-        s_di_i : IN std_logic_vector(N-1 downto 0) := (others => 'X');
-        s_wren_i : IN std_logic := 'X';
-        s_do_valid_o : OUT std_logic;
-        s_do_o : OUT std_logic_vector(N-1 downto 0);
-        ----- debug -----
-        s_do_transfer_o : OUT std_logic;
-        s_wren_o : OUT std_logic;
-        s_wren_ack_o : OUT std_logic;
-        s_rx_bit_reg_o : OUT std_logic;
-        s_state_dbg_o : OUT std_logic_vector(5 downto 0)
---      s_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0)
-        );
-    END COMPONENT;
-
+	COMPONENT spi_loopback
+	PORT(
+		m_clk_i : IN std_logic;
+		m_rst_i : IN std_logic;
+		m_spi_miso_i : IN std_logic;
+		m_di_i : IN std_logic_vector(31 downto 0);
+		m_wren_i : IN std_logic;
+		s_clk_i : IN std_logic;
+		s_spi_ssel_i : IN std_logic;
+		s_spi_sck_i : IN std_logic;
+		s_spi_mosi_i : IN std_logic;
+		s_di_i : IN std_logic_vector(31 downto 0);
+		s_wren_i : IN std_logic;          
+		m_spi_ssel_o : OUT std_logic;
+		m_spi_sck_o : OUT std_logic;
+		m_spi_mosi_o : OUT std_logic;
+		m_di_req_o : OUT std_logic;
+		m_do_valid_o : OUT std_logic;
+		m_do_o : OUT std_logic_vector(31 downto 0);
+		m_do_transfer_o : OUT std_logic;
+		m_wren_o : OUT std_logic;
+		m_wren_ack_o : OUT std_logic;
+		m_rx_bit_reg_o : OUT std_logic;
+		m_state_dbg_o : OUT std_logic_vector(5 downto 0);
+		m_core_clk_o : OUT std_logic;
+		m_core_n_clk_o : OUT std_logic;
+		m_sh_reg_dbg_o : OUT std_logic_vector(31 downto 0);
+		s_spi_miso_o : OUT std_logic;
+		s_di_req_o : OUT std_logic;
+		s_do_valid_o : OUT std_logic;
+		s_do_o : OUT std_logic_vector(31 downto 0);
+		s_do_transfer_o : OUT std_logic;
+		s_wren_o : OUT std_logic;
+		s_wren_ack_o : OUT std_logic;
+		s_rx_bit_reg_o : OUT std_logic;
+		s_state_dbg_o : OUT std_logic_vector(5 downto 0)
+		);
+	END COMPONENT;
 
     --=========================================================
     -- constants
@@ -114,7 +110,6 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     -- signals to connect the instances
     --=========================================================
     -- internal clk and rst
-    signal spi_2x_clk : std_logic := '0';           -- This is the SPI_SCK clock source. Must be 2x spi sck.
     signal m_clk : std_logic := '0';                -- clock domain for the master parallel interface. Must be faster than spi bus sck.
     signal s_clk : std_logic := '0';                -- clock domain for the slave parallel interface. Must be faster than spi bus sck.
     signal rst : std_logic := 'U';
@@ -153,20 +148,18 @@ ARCHITECTURE behavior OF spi_loopback_test IS
     --=========================================================
     -- Clock period definitions
     --=========================================================
-    constant spi_2x_clk_period : time := 15 ns;     -- 33MHz SPI SCK clock
-    constant spi_2x_clk_skew : time := 1333 ps;     -- skew the clock, to test critical data setup times
-    constant m_clk_period : time := 9 ns;           -- 100MHz master parallel clock
-    constant s_clk_period : time := 8 ns;           -- 125MHz slave parallel clock
+    constant m_clk_period : time := 10 ns;          -- 100MHz master parallel clock
+    constant s_clk_period : time := 10 ns;          -- 100MHz slave parallel clock
 
 BEGIN
  
     --=========================================================
-    -- instantiation of UUT
+    -- Component instantiation for the Unit Under Test (UUT)
     --=========================================================
 
-    Inst_spi_loopback: spi_loopback PORT MAP(
+    Inst_spi_loopback: spi_loopback
+    port map(
         ----------------MASTER-----------------------
-        m_spi_2x_clk_i => spi_2x_clk,
         m_clk_i => m_clk,
         m_rst_i => rst,
         m_spi_ssel_o => spi_ssel,
@@ -210,18 +203,6 @@ BEGIN
     --=========================================================
     -- Clock generator processes
     --=========================================================
-    spi_2x_clk_process : process
-    begin
-        spi_2x_clk <= '1';
-        wait for spi_2x_clk_skew;
-        loop
-            spi_2x_clk <= '0';
-            wait for spi_2x_clk_period/2;
-            spi_2x_clk <= '1';
-            wait for spi_2x_clk_period/2;
-        end loop;
-    end process spi_2x_clk_process;
-
     m_clk_process : process
     begin
         m_clk <= '0';
