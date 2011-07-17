@@ -133,11 +133,11 @@
 -- 2011/07/10   v1.00.0098  [JD]    implemented SCK clock divider circuit to generate spi clock directly from system clock.
 -- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave in silicon at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 
 --                                  7.1428MHz, 6.25MHz, 1MHz and 500kHz. The core proved very robust at all tested frequencies.
+-- 2011/07/16   v1.11.0080  [JD]    verified both spi_master and spi_slave in loopback at 50MHz SPI clock.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
 --  ====
---      > verify the receive interface in silicon, and determine the top usable frequency.
 --
 -----------------------------------------------------------------------------------------------------------------------
 library ieee;
@@ -146,6 +146,8 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 --================================================================================================================
+-- SYNTHESIS CONSIDERATIONS
+-- ========================
 -- There are several output ports that are used to simulate and verify the core operation. 
 -- Do not map any signals to the unused ports, and the synthesis tool will remove the related interfacing
 -- circuitry. 
@@ -193,7 +195,7 @@ end spi_master;
 -- this architecture is a pipelined register-transfer description.
 -- all signals are clocked at the rising edge of the system clock 'sclk_i'.
 --================================================================================================================
-architecture rtl of spi_master is
+architecture RTL of spi_master is
     -- core clocks, generated from 'sclk_i': initialized to differential values
     signal core_clk : std_logic := '0';     -- continuous core clock, positive logic
     signal core_n_clk : std_logic := '1';   -- continuous core clock, negative logic
@@ -375,13 +377,13 @@ begin
     --  ATTENTION:  REMOVING THE FLIPFLOP (DIRECT CONNECTION) WE GET HIGHER PERFORMANCE DUE TO 
     --              REDUCED DEMAND ON MISO SETUP TIME. 
     --
-    rx_bit_proc : process (sclk_i) is
+    rx_bit_proc : process (sclk_i, spi_miso_i) is
     begin
-        if sclk_i'event and sclk_i = '1' then
-            if samp_ce = '1' then
+--        if sclk_i'event and sclk_i = '1' then
+--            if samp_ce = '1' then
                 rx_bit_reg <= spi_miso_i;
-            end if;
-        end if;
+--            end if;
+--        end if;
     end process rx_bit_proc;
 
     --=============================================================================================
@@ -562,5 +564,5 @@ begin
     core_ce_o_proc:     core_ce_o <= core_ce;
     core_n_ce_o_proc:   core_n_ce_o <= core_n_ce;
 
-end architecture rtl;
+end architecture RTL;
 

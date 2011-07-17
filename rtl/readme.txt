@@ -34,7 +34,8 @@ Design verification in silicon was done in a Digilent Atlys board, and the verif
 
 If you have any questions or usage issues with this core, please open a thread in OpenCores forum, and I will be pleased to answer.
 
-If you find a bug or a design fault in the models, or if you have an issue that you like to be addressed, please open a bug/issue in the OpenCores bugtracker for this project, at http://opencores.org/project,spi_master_slave,bugtracker.
+If you find a bug or a design fault in the models, or if you have an issue that you like to be addressed, please open a bug/issue in the OpenCores bugtracker for this project, at 
+		http://opencores.org/project,spi_master_slave,bugtracker.
 
 
 In any case, thank you for testing and using this core.
@@ -42,7 +43,4 @@ In any case, thank you for testing and using this core.
 
 Jonny Doin
 jdoin@opencores.org
-
-
-
 

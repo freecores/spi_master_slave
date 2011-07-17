@@ -3,7 +3,7 @@
 -- 
 -- Create Date:     09:56:30 07/06/2011  
 -- Module Name:     grp_debouncer - RTL
--- Project Name:    generic functions
+-- Project Name:    basic functions
 -- Target Devices:  Spartan-6
 -- Tool versions:   ISE 13.1
 -- Description: 
