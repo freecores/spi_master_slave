@@ -134,6 +134,10 @@
 -- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave in silicon at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 
 --                                  7.1428MHz, 6.25MHz, 1MHz and 500kHz. The core proved very robust at all tested frequencies.
 -- 2011/07/16   v1.11.0080  [JD]    verified both spi_master and spi_slave in loopback at 50MHz SPI clock.
+-- 2011/07/17   v1.11.0080  [JD]    BUG: CPOL='1', CPHA='1' @50MHz causes MOSI to be shifted one bit earlier.
+--                                  BUG: CPOL='0', CPHA='1' causes SCK to have one extra pulse with one sclk_i width at the end.
+-- 2011/07/18   v1.12.0105  [JD]    CHG: spi sck output register changed to remove glitch at last clock when CPHA='1'.
+--                                  for CPHA='1', max spi clock is 25MHz. for CPHA= '0', max spi clock is >50MHz.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
@@ -197,17 +201,18 @@ end spi_master;
 --================================================================================================================
 architecture RTL of spi_master is
     -- core clocks, generated from 'sclk_i': initialized to differential values
-    signal core_clk : std_logic := '0';     -- continuous core clock, positive logic
-    signal core_n_clk : std_logic := '1';   -- continuous core clock, negative logic
-    signal core_ce : std_logic := '0';      -- core clock enable, positive logic
-    signal core_n_ce : std_logic := '1';    -- core clock enable, negative logic
+    signal core_clk     : std_logic := '0';     -- continuous core clock, positive logic
+    signal core_n_clk   : std_logic := '1';     -- continuous core clock, negative logic
+    signal core_ce      : std_logic := '0';     -- core clock enable, positive logic
+    signal core_n_ce    : std_logic := '1';     -- core clock enable, negative logic
     -- spi bus clock, generated from the CPOL selected core clock polarity
-    signal spi_2x_ce : std_logic := '1';    -- spi_2x clock enable
-    signal spi_clk : std_logic := '0';      -- spi bus output clock
-    signal spi_clk_reg : std_logic := '0';  -- output pipeline delay for spi sck
+    signal spi_2x_ce    : std_logic := '1';     -- spi_2x clock enable
+    signal spi_clk      : std_logic := '0';     -- spi bus output clock
+    signal spi_clk_reg  : std_logic := '0';     -- output pipeline delay for spi sck
     -- core fsm clock enables
-    signal fsm_ce : std_logic := '1';       -- fsm clock enable
-    signal samp_ce : std_logic := '1';      -- data sampling clock enable
+    signal fsm_ce       : std_logic := '1';     -- fsm clock enable
+    signal ena_sck_ce   : std_logic := '1';     -- SCK clock enable
+    signal samp_ce      : std_logic := '1';     -- data sampling clock enable
     --
     -- GLOBAL RESET: 
     --      all signals are initialized to zero at GSR (global set/reset) by giving explicit
@@ -333,12 +338,12 @@ begin
     end process core_clock_gen_proc;
     -----------------------------------------------------------------------------------------------
     -- spi clk generator: generate spi_clk from core_clk depending on CPOL
-    spi_sck_cpol_0_proc :  
+    spi_sck_cpol_0_proc :
         if CPOL = '0' generate
         begin
             spi_clk <= core_clk;            -- for CPOL=0, spi clk has idle LOW
         end generate;
-    spi_sck_cpol_1_proc :  
+    spi_sck_cpol_1_proc :
         if CPOL = '1' generate
         begin
             spi_clk <= core_n_clk;          -- for CPOL=1, spi clk has idle HIGH
@@ -346,29 +351,31 @@ begin
     -----------------------------------------------------------------------------------------------
     -- Sampling clock enable generation: generate 'samp_ce' from 'core_ce' or 'core_n_ce' depending on CPHA
     -- always sample data at the half-cycle of the fsm update cell
-    samp_ce_cpha_0_proc :  
+    samp_ce_cpha_0_proc :
         if CPHA = '0' generate
         begin
             samp_ce <= core_ce;
         end generate;
-    samp_ce_cpha_1_proc :  
+    samp_ce_cpha_1_proc :
         if CPHA = '1' generate
         begin
             samp_ce <= core_n_ce;
         end generate;
     -----------------------------------------------------------------------------------------------
     -- FSM clock enable generation: generate 'fsm_ce' from core_ce or core_n_ce depending on CPHA
-    fsm_ce_cpha_0_proc :  
+    fsm_ce_cpha_0_proc :
         if CPHA = '0' generate
         begin
             fsm_ce <= core_n_ce;            -- for CPHA=0, latch registers at rising edge of negative core clock enable
         end generate;
-    fsm_ce_cpha_1_proc :  
+    fsm_ce_cpha_1_proc :
         if CPHA = '1' generate
         begin
             fsm_ce <= core_ce;              -- for CPHA=1, latch registers at rising edge of positive core clock enable
         end generate;
 
+    ena_sck_ce <= core_n_ce;                -- for CPHA=1, SCK is advanced one-half cycle
+    
     --=============================================================================================
     --  REGISTERED INPUTS
     --=============================================================================================
@@ -379,11 +386,11 @@ begin
     --
     rx_bit_proc : process (sclk_i, spi_miso_i) is
     begin
---        if sclk_i'event and sclk_i = '1' then
---            if samp_ce = '1' then
+        if sclk_i'event and sclk_i = '1' then
+            if samp_ce = '1' then
                 rx_bit_reg <= spi_miso_i;
---            end if;
---        end if;
+            end if;
+        end if;
     end process rx_bit_proc;
 
     --=============================================================================================
@@ -448,7 +455,7 @@ begin
                 state_reg <= state_next;                    -- state register
             end if;
         end if;
-        -- FF registers clocked on rising edge
+        -- FF registers clocked synchronous to the fsm state
         if sclk_i'event and sclk_i = '1' then
             if fsm_ce = '1' then
                 sh_reg <= sh_next;                          -- shift register
@@ -460,6 +467,12 @@ begin
                 wren_ack_reg <= wren_ack_next;              -- wren ack for data load synchronization
             end if;
         end if;
+        -- FF registers clocked one-half cycle earlier than the fsm state
+--        if sclk_i'event and sclk_i = '1' then
+--            if ena_sck_ce = '1' then
+--                ena_sck_reg <= ena_sck_next;                -- spi clock enable
+--            end if;
+--        end if;
     end process core_reg_proc;
 
     --=============================================================================================
@@ -539,12 +552,19 @@ begin
     -- enabling higher SCK frequency. The MOSI and SCK phase are compensated by the pipeline delay.
     spi_sck_o_gen_proc : process (sclk_i, ena_sck_reg, spi_clk, spi_clk_reg) is
     begin
-        if sclk_i'event and sclk_i = '1' then
-            if ena_sck_reg = '1' then
+--        if sclk_i'event and sclk_i = '1' then
+--            if ena_sck_reg = '1' then
+--                spi_clk_reg <= spi_clk;                                 -- copy the selected clock polarity
+--            else
+--                spi_clk_reg <= CPOL;                                    -- when clock disabled, set to idle polarity
+--            end if;
+--        end if;
+        if ena_sck_reg = '1' then
+            if sclk_i'event and sclk_i = '1' then
                 spi_clk_reg <= spi_clk;                                 -- copy the selected clock polarity
-            else
-                spi_clk_reg <= CPOL;                                    -- when clock disabled, set to idle polarity
             end if;
+        else
+            spi_clk_reg <= CPOL;                                    -- when clock disabled, set to idle polarity
         end if;
         spi_sck_o <= spi_clk_reg;                                       -- connect register to output
     end process spi_sck_o_gen_proc;
