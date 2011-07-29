@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------------------------------------
--- Author:          Jonny Doin, jdoin@opencores.org
+-- Author:          Jonny Doin, jdoin@opencores.org, jonnydoin@gmail.com
 -- 
 -- Create Date:     09:56:30 07/06/2011  
 -- Module Name:     grp_debouncer - RTL
@@ -80,12 +80,13 @@
 --      The slice distribution will vary, and depends on the control set restrictions and LUT-FF pairs resulting from map+p&r.
 --
 --      This design was originally targeted to a Spartan-6 platform, synthesized with XST and normal constraints.
+--      Verification in silicon was done on a Digilent Atlys board with a Spartan-6 FPGA @100MHz clk_i.
 --      The VHDL dialect used is VHDL'93, accepted largely by all synthesis tools.
 --
 ------------------------------ COPYRIGHT NOTICE -----------------------------------------------------------------------
 --                                                                   
 --                                                                   
---      Author(s):      Jonny Doin, jdoin@opencores.org
+--      Author(s):      Jonny Doin, jdoin@opencores.org, jonnydoin@gmail.com
 --                                                                   
 --      Copyright (C) 2011 Authors
 --      --------------------------
@@ -114,6 +115,7 @@
 --  TODO
 --  ====
 --
+--  The circuit can easily be extended to have a signature of which inputs changed at the data out port.
 --
 -----------------------------------------------------------------------------------------------------------------------
 library ieee;

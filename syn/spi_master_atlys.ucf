@@ -217,35 +217,40 @@
 
 # onboard VHDCI
 # Channnel 1 connects to P signals, Channel 2 to N signals
- NET "spi_ssel_o"       LOC = "U16"; # Bank = 2,  Pin name = IO_L2P_CMPCLK,             Sch name = EXP-IO1_P,   MSO D15
- NET "spi_mosi_o"       LOC = "U15"; # Bank = 2,  Pin name = *IO_L5P,        		    Sch name = EXP-IO2_P,   MSO D13
- NET "spi_di_req_o"     LOC = "U13"; # Bank = 2,  Pin name = IO_L14P_D11,        	    Sch name = EXP-IO3_P,   MSO D11
- NET "spi_rx_bit_s_o"   LOC = "M11"; # Bank = 2,  Pin name = *IO_L15P,        		    Sch name = EXP-IO4_P,   MSO D9
- NET "dbg_o<7>"         LOC = "R11"; # Bank = 2,  Pin name = IO_L16P,        		    Sch name = EXP-IO5_P,   MSO D7
- NET "dbg_o<5>"         LOC = "T12"; # Bank = 2,  Pin name = *IO_L19P,        		    Sch name = EXP-IO6_P,   MSO D5
- NET "dbg_o<3>"         LOC = "N10"; # Bank = 2,  Pin name = *IO_L20P,        		    Sch name = EXP-IO7_P,   MSO D3
- NET "dbg_o<1>"         LOC = "M10"; # Bank = 2,  Pin name = *IO_L22P,        		    Sch name = EXP-IO8_P,   MSO D1
-# NET "VHDCIIO1<8>"  LOC = "U11"; # Bank = 2,  Pin name = IO_L23P,        		    Sch name = EXP-IO9_P
-# NET "VHDCIIO1<9>"  LOC = "R10"; # Bank = 2,  Pin name = IO_L29P_GCLK3,            Sch name = EXP-IO10_P
-# NET "VHDCIIO1<10>" LOC = "U10"; # Bank = 2,  Pin name = IO_L30P_GCLK1_D13,        Sch name = EXP-IO11_P
-# NET "VHDCIIO1<11>" LOC = "R8";  # Bank = 2,  Pin name = IO_L31P_GCLK31_D14,       Sch name = EXP-IO12_P
-# NET "VHDCIIO1<12>" LOC = "M8";  # Bank = 2,  Pin name = *IO_L40P,        		    Sch name = EXP-IO13_P
-# NET "VHDCIIO1<13>" LOC = "U8";  # Bank = 2,  Pin name = IO_L41P,        		    Sch name = EXP-IO14_P
-# NET "VHDCIIO1<14>" LOC = "U7";  # Bank = 2,  Pin name = IO_L43P,        		    Sch name = EXP-IO15_P
-# NET "VHDCIIO1<15>" LOC = "N7";  # Bank = 2,  Pin name = *IO_L44P,        		    Sch name = EXP-IO16_P
-# NET "VHDCIIO1<16>" LOC = "T6";  # Bank = 2,  Pin name = IO_L45P,        		    Sch name = EXP-IO17_P
-# NET "VHDCIIO1<17>" LOC = "R7";  # Bank = 2,  Pin name = IO_L46P,        		    Sch name = EXP-IO18_P
-# NET "VHDCIIO1<18>" LOC = "N6";  # Bank = 2,  Pin name = *IO_L47P,        		    Sch name = EXP-IO19_P
-# NET "VHDCIIO1<19>" LOC = "U5";  # Bank = 2,  Pin name = IO_49P_D3,        	    Sch name = EXP-IO20_P
-    
- NET "spi_sck_o"        LOC = "V16"; # Bank = 2,  Pin name = IO_L2N_CMPMOSI,            Sch name = EXP-IO1_N,   MSO D14
- NET "spi_miso_o"       LOC = "V15"; # Bank = 2,  Pin name = *IO_L5N,        		    Sch name = EXP-IO2_N,   MSO D12
- NET "spi_rx_bit_m_o"   LOC = "V13"; # Bank = 2,  Pin name = IO_L14N_D12,        	    Sch name = EXP-IO3_N,   MSO D10
- NET "spi_do_valid_o"   LOC = "N11"; # Bank = 2,  Pin name = *IO_L15N,        		    Sch name = EXP-IO4_N,   MSO D8
- NET "dbg_o<6>"         LOC = "T11"; # Bank = 2,  Pin name = IO_L16N_VREF,        	    Sch name = EXP-IO5_N,   MSO D6
- NET "dbg_o<4>"         LOC = "V12"; # Bank = 2,  Pin name = *IO_L19N,        		    Sch name = EXP-IO6_N,   MSO D4
- NET "dbg_o<2>"         LOC = "P11"; # Bank = 2,  Pin name = *IO_L20N,        		    Sch name = EXP-IO7_N,   MSO D2
- NET "dbg_o<0>"         LOC = "N9";  # Bank = 2,  Pin name = *IO_L22N,        		    Sch name = EXP-IO8_N,   MSO D0
+
+# 16bit debug outputs for MSO2014 digital signals, in 2 pod connectors
+# D15-D8 connector pod
+ NET "spi_ssel_o"       LOC = "U16";    # Bank = 2, Pin name = IO_L2P_CMPCLK,       Sch name = EXP-IO1_P,   MSO D15
+ NET "spi_sck_o"        LOC = "V16";    # Bank = 2, Pin name = IO_L2N_CMPMOSI,      Sch name = EXP-IO1_N,   MSO D14
+ NET "spi_mosi_o"       LOC = "U15";    # Bank = 2, Pin name = *IO_L5P,             Sch name = EXP-IO2_P,   MSO D13
+ NET "spi_miso_o"       LOC = "V15";    # Bank = 2, Pin name = *IO_L5N,             Sch name = EXP-IO2_N,   MSO D12
+ NET "dbg_o<11>"        LOC = "U13";    # Bank = 2, Pin name = IO_L14P_D11,         Sch name = EXP-IO3_P,   MSO D11
+ NET "dbg_o<10>"        LOC = "V13";    # Bank = 2, Pin name = IO_L14N_D12,         Sch name = EXP-IO3_N,   MSO D10
+ NET "dbg_o<9>"         LOC = "M11";    # Bank = 2, Pin name = *IO_L15P,            Sch name = EXP-IO4_P,   MSO D9
+ NET "dbg_o<8>"         LOC = "N11";    # Bank = 2, Pin name = *IO_L15N,            Sch name = EXP-IO4_N,   MSO D8
+# D7-D0 connector pod
+ NET "dbg_o<7>"         LOC = "R11";    # Bank = 2, Pin name = IO_L16P,             Sch name = EXP-IO5_P,   MSO D7
+ NET "dbg_o<6>"         LOC = "T11";    # Bank = 2, Pin name = IO_L16N_VREF,        Sch name = EXP-IO5_N,   MSO D6
+ NET "dbg_o<5>"         LOC = "T12";    # Bank = 2, Pin name = *IO_L19P,            Sch name = EXP-IO6_P,   MSO D5
+ NET "dbg_o<4>"         LOC = "V12";    # Bank = 2, Pin name = *IO_L19N,            Sch name = EXP-IO6_N,   MSO D4
+ NET "dbg_o<3>"         LOC = "N10";    # Bank = 2, Pin name = *IO_L20P,            Sch name = EXP-IO7_P,   MSO D3
+ NET "dbg_o<2>"         LOC = "P11";    # Bank = 2, Pin name = *IO_L20N,            Sch name = EXP-IO7_N,   MSO D2
+ NET "dbg_o<1>"         LOC = "M10";    # Bank = 2, Pin name = *IO_L22P,            Sch name = EXP-IO8_P,   MSO D1
+ NET "dbg_o<0>"         LOC = "N9";     # Bank = 2, Pin name = *IO_L22N,            Sch name = EXP-IO8_N,   MSO D0
+
+# NET "VHDCIIO1<8>"  LOC = "U11";       # Bank = 2, Pin name = IO_L23P,             Sch name = EXP-IO9_P
+# NET "VHDCIIO1<9>"  LOC = "R10";       # Bank = 2, Pin name = IO_L29P_GCLK3,       Sch name = EXP-IO10_P
+# NET "VHDCIIO1<10>" LOC = "U10";       # Bank = 2, Pin name = IO_L30P_GCLK1_D13,   Sch name = EXP-IO11_P
+# NET "VHDCIIO1<11>" LOC = "R8";        # Bank = 2, Pin name = IO_L31P_GCLK31_D14,  Sch name = EXP-IO12_P
+# NET "VHDCIIO1<12>" LOC = "M8";        # Bank = 2, Pin name = *IO_L40P,            Sch name = EXP-IO13_P
+# NET "VHDCIIO1<13>" LOC = "U8";        # Bank = 2, Pin name = IO_L41P,             Sch name = EXP-IO14_P
+# NET "VHDCIIO1<14>" LOC = "U7";        # Bank = 2, Pin name = IO_L43P,             Sch name = EXP-IO15_P
+# NET "VHDCIIO1<15>" LOC = "N7";        # Bank = 2, Pin name = *IO_L44P,            Sch name = EXP-IO16_P
+# NET "VHDCIIO1<16>" LOC = "T6";        # Bank = 2, Pin name = IO_L45P,             Sch name = EXP-IO17_P
+# NET "VHDCIIO1<17>" LOC = "R7";        # Bank = 2, Pin name = IO_L46P,             Sch name = EXP-IO18_P
+# NET "VHDCIIO1<18>" LOC = "N6";        # Bank = 2, Pin name = *IO_L47P,            Sch name = EXP-IO19_P
+# NET "VHDCIIO1<19>" LOC = "U5";        # Bank = 2, Pin name = IO_49P_D3,           Sch name = EXP-IO20_P
+        
 # NET "VHDCIIO2<8>"  LOC = "V11"; # Bank = 2,  Pin name = IO_L23N,        		    Sch name = EXP-IO9_N
 # NET "VHDCIIO2<9>"  LOC = "T10"; # Bank = 2,  Pin name = IO_L29N_GCLK2,            Sch name = EXP-IO10_N
 # NET "VHDCIIO2<10>" LOC = "V10"; # Bank = 2,  Pin name = IO_L30N_GCLK0_USERCCLK,   Sch name = EXP-IO11_N

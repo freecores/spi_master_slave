@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
--- Engineer: Jonny Doin
+-- Author:          Jonny Doin, jdoin@opencores.org, jonnydoin@gmail.com
 -- 
 -- Create Date:     01:21:32 06/30/2011 
 -- Design Name: 
@@ -27,7 +27,7 @@
 --                                  external monitoring pins to the VHDCI ports.
 -- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 7.1428MHz, 
 --                                  6.25MHz, 1MHz and 500kHz 
--- 2011/07/18   v1.12.0105  [JD]    spi_master.vhd changed to fix CPHA='1' clock glitch.  
+-- 2011/07/29   v1.12.0105  [JD]    spi_master.vhd and spi_slave_vhd changed to fix CPHA='1' bug.
 --
 --
 ----------------------------------------------------------------------------------
@@ -37,27 +37,20 @@ use ieee.std_logic_arith.all;
 
 entity spi_master_atlys_top is
     Port (
-        gclk_i : in std_logic := 'X';               -- board clock input 100MHz
-        --- SPI interface ---
-        spi_ssel_o : out std_logic;                 -- spi port SSEL
-        spi_sck_o : out std_logic;                  -- spi port SCK
-        spi_mosi_o : out std_logic;                 -- spi port MOSI
-        spi_miso_o : out std_logic;                 -- spi port MISO
-        --- input slide switches ---
-        sw_i : in std_logic_vector (7 downto 0);    -- 8 input slide switches
-        --- input buttons ---
-        btn_i : in std_logic_vector (5 downto 0);   -- 6 input push buttons
-        --- output LEDs ----
-        led_o : out std_logic_vector (7 downto 0);  -- output leds
+        gclk_i : in std_logic := 'X';                           -- board clock input 100MHz
+        --- SPI interface ---           
+        spi_ssel_o : out std_logic;                             -- spi port SSEL
+        spi_sck_o : out std_logic;                              -- spi port SCK
+        spi_mosi_o : out std_logic;                             -- spi port MOSI
+        spi_miso_o : out std_logic;                             -- spi port MISO
+        --- input slide switches ---            
+        sw_i : in std_logic_vector (7 downto 0);                -- 8 input slide switches
+        --- input buttons ---           
+        btn_i : in std_logic_vector (5 downto 0);               -- 6 input push buttons
+        --- output LEDs ----            
+        led_o : out std_logic_vector (7 downto 0);              -- output leds
         --- debug outputs ---
-        dbg_o : out std_logic_vector (7 downto 0);  -- 10 generic debug pins
-        --- spi debug pins ---
-        spi_rx_bit_m_o : out std_logic;             -- master rx bit feedback
-        spi_rx_bit_s_o : out std_logic;             -- slave rx bit feedback
-        spi_do_valid_o : out std_logic;             -- spi data valid
-        spi_di_req_o : out std_logic                -- spi data request
---        spi_wren_o : out std_logic;                 -- spi write enable
---        spi_wren_ack_o : out std_logic              -- spi write enable ack
+        dbg_o : out std_logic_vector (11 downto 0)              -- 12 generic debug pins
     );                      
 end spi_master_atlys_top;
 
@@ -73,8 +66,8 @@ architecture behavioral of spi_master_atlys_top is
     constant SAMP_CE_DIV        : integer := 1;     -- board signals sampled at 100MHz
     -- spi port generics
     constant N      : integer   := 8;               -- 8 bits
-    constant CPOL   : std_logic := '0';
-    constant CPHA   : std_logic := '0';
+    constant CPOL   : std_logic := '1';
+    constant CPHA   : std_logic := '1';
     
     -- button definitions
     constant btRESET    : integer := 0;             -- these are constants to use as btn_i(x)
@@ -88,7 +81,7 @@ architecture behavioral of spi_master_atlys_top is
     -- Type definitions
     --=============================================================================================
     type fsm_state_type is (st_reset, st_wait_spi_idle, st_wait_new_switch, 
-                            st_send_spi_data, st_wait_spi_ack, st_wait_spi_finish ); 
+                            st_send_spi_data, st_wait_spi_ack ); 
 
     --=============================================================================================
     -- Signals for state machine control
@@ -134,24 +127,26 @@ architecture behavioral of spi_master_atlys_top is
     -- spi master port debug flags
     signal spi_rx_bit_m     : std_logic;
     signal spi_wr_ack_m     : std_logic;
+    signal state_dbg_m      : std_logic_vector (5 downto 0);
     -- spi slave port control signals
     signal spi_wren_reg_s   : std_logic := '1';
-    signal spi_wren_next_s  : std_logic := '0';
+    signal spi_wren_next_s  : std_logic := '1';
     -- spi slave port flow control flags
     signal spi_di_req_s     : std_logic;
     signal spi_do_valid_s   : std_logic;
     -- spi slave port parallel data bus
-    signal spi_di_reg_s     : std_logic_vector (N-1 downto 0) := (7 => '1', 6 => '0', 5 => '1', others => '0');
+    signal spi_di_reg_s     : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_di_next_s    : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_do_s         : std_logic_vector (N-1 downto 0);
     -- spi slave port debug flags
     signal spi_rx_bit_s     : std_logic;
     signal spi_wr_ack_s     : std_logic;
+    signal state_dbg_s      : std_logic_vector (5 downto 0);
     -- other signals
     signal clear            : std_logic := '0';
     -- debug output signals
     signal leds_reg         : std_logic_vector (7 downto 0) := (others => '0');
-    signal dbg              : std_logic_vector (7 downto 0) := (others => '0');
+    signal dbg              : std_logic_vector (11 downto 0) := (others => '0');
 begin
 
     --=============================================================================================
@@ -172,16 +167,20 @@ begin
             spi_miso_i => spi_miso,
             di_req_o => spi_di_req_m,
             di_i => spi_di_reg_m,
+            wren_i => spi_wren_reg_m,
             do_valid_o => spi_do_valid_m,
             do_o => spi_do_m,
-            rx_bit_reg_o => spi_rx_bit_m,
-            wren_i => spi_wren_reg_m,
+            ------------ debug pins ------------
+--            rx_bit_reg_o => spi_rx_bit_m,
+--            state_dbg_o => state_dbg_m,       -- monitor internal master state register
+--            sck_ena_o => sck_ena_m,           -- monitor internal sck_ena register
 --            wren_o => spi_wren_o,
-            wren_ack_o => spi_wr_ack_m          -- monitor wren ack from inside spi port
+            wr_ack_o => spi_wr_ack_m            -- monitor wren ack from inside spi port
         );
 
-    dbg(7 downto 0) <= spi_do_m(7 downto 0);    -- connect master received data to 8bit debug port
-    spi_rx_bit_m_o  <= spi_rx_bit_m;            -- connect rx_bit monitor for master port
+--    state_dbg_o(3 downto 0) <= state_dbg_m(3 downto 0); -- connect master state debug port
+--    sck_ena_o <= sck_ena_m;                             -- sck_ena debug port
+--    spi_rx_bit_m_o  <= spi_rx_bit_m;                    -- connect rx_bit monitor for master port
 
     -- spi slave port
     --      receives parallel data from the pushbuttons, transmits to master port.
@@ -197,37 +196,48 @@ begin
             di_req_o => spi_di_req_s,
             di_i => spi_di_reg_s,
             wren_i => spi_wren_reg_s,
-            rx_bit_reg_o => spi_rx_bit_s,
             do_valid_o => spi_do_valid_s,
-            do_o => spi_do_s
+            do_o => spi_do_s,
+            ------------ debug pins ------------
+            state_dbg_o => state_dbg_s,        -- monitor internal state register
+            rx_bit_next_o => spi_rx_bit_s,
+            wr_ack_o => dbg(5),
+            do_transfer_o => dbg(4)
         );                      
 
+    -- connect debug port pins to slave instance interface signals
+    dbg(7) <= spi_rx_bit_s;
+    dbg(6) <= spi_wren_reg_s;
+    dbg(3) <= spi_do_valid_s;
+    dbg(2) <= spi_di_req_s;
+    dbg(1) <= '0';
+    dbg(0) <= '0';
+
+    dbg(11 downto 8) <= state_dbg_s(3 downto 0);-- connect state register
+    
     spi_di_reg_s(7) <= btn_data(btLEFT);        -- get the slave transmit data from pushbuttons
     spi_di_reg_s(6) <= btn_data(btCENTER);
     spi_di_reg_s(5 downto 1) <= B"10101";
     spi_di_reg_s(0) <= btn_data(btRIGHT);
     spi_wren_reg_s <= '1';                      -- fix wren to '1', for continuous load of transmit data
-    spi_rx_bit_s_o <= spi_rx_bit_s;             -- connect rx_bit monitor for slave port
 
     -- debounce for the input switches, with new data strobe output
     Inst_sw_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 8, CNT_VAL => 10000)  -- debounce 8 inputs with 100 us settling time
+        generic map (N => 8, CNT_VAL => 20000)  -- debounce 8 inputs with 200 us settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => sw_i,                     -- noisy input data
             data_o => sw_data                   -- registered stable output data
---            strb_o => dbg(0)                    -- monitor the debounced data strobe
-        );                      
+        );
 
     -- debounce for the input pushbuttons, with new data strobe output
     Inst_btn_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 6, CNT_VAL => 50000)  -- debounce 6 inputs with 500 us settling time
+        generic map (N => 6, CNT_VAL => 20000)  -- debounce 6 inputs with 200 us settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => btn_i,                    -- noisy input data
             data_o => btn_data                  -- registered stable output data
---            strb_o => dbg(3)                    -- monitor the debounced data strobe
-        );                      
+        );
 
     --=============================================================================================
     --  CONSTANTS CONSTRAINTS CHECKING
@@ -317,8 +327,6 @@ begin
             if fsm_ce = '1' then
                 spi_wren_reg_m <= spi_wren_next_m;
                 spi_di_reg_m <= spi_di_next_m;
---                spi_wren_reg_s <= spi_wren_next_s;
---                spi_di_reg_s <= spi_di_next_s;
                 spi_rst_reg <= spi_rst_next;
                 spi_ssel_reg <= spi_ssel;
                 sw_reg <= sw_next;
@@ -343,8 +351,6 @@ begin
         spi_rst_next <= spi_rst_reg;
         spi_di_next_m <= spi_di_reg_m;
         spi_wren_next_m <= spi_wren_reg_m;
---        spi_di_next_s <= spi_di_reg_s;
---        spi_wren_next_s <= spi_wren_reg_s;
         sw_next <= sw_reg;
         btn_next <= btn_reg;
         state_next <= state_reg;
@@ -358,6 +364,7 @@ begin
                 state_next <= st_wait_spi_idle;
                 
             when st_wait_spi_idle =>
+                spi_wren_next_m <= '0';                     -- remove write strobe on next clock
                 if spi_ssel_reg = '1' then
                     spi_rst_next <= '0';                    -- remove reset when interface is idle
                     state_next <= st_wait_new_switch;
@@ -381,16 +388,9 @@ begin
 
             when st_wait_spi_ack =>                         -- the actual write happens on this state
                 spi_di_next_m <= sw_reg;                    -- load switch register to the spi port
-                if spi_wr_ack_m = '1' then                  -- wait acknowledge
-                    spi_wren_next_m <= '0';                 -- remove write strobe on next clock
-                    state_next <= st_wait_spi_finish;
-                end if;
+                spi_wren_next_m <= '0';                     -- remove write strobe on next clock
+                state_next <= st_wait_spi_idle;
         
-            when st_wait_spi_finish =>
-                if spi_ssel_reg = '1' then
-                    state_next <= st_wait_new_switch;
-                end if;
-
             when others =>
                 state_next <= st_reset;                     -- state st_reset is safe state
         end case; 
@@ -404,10 +404,8 @@ begin
     spi_sck_o_proc:         spi_sck_o       <= spi_sck;
     spi_mosi_o_proc:        spi_mosi_o      <= spi_mosi;
     spi_miso_o_proc:        spi_miso_o      <= spi_miso;
-    spi_do_valid_o_proc:    spi_do_valid_o  <= spi_do_valid_m;
-    spi_di_req_o_proc:      spi_di_req_o    <= spi_di_req_m;
---    spi_wren_ack_o_proc:    spi_wren_ack_o  <= spi_wr_ack_m;
-    led_o_proc:             led_o           <= leds_reg;        -- connect leds_reg signal to LED outputs
+    -- connect leds_reg signal to LED outputs
+    led_o_proc:             led_o           <= leds_reg;        
 
     --=============================================================================================
     --  DEBUG LOGIC PROCESSES
