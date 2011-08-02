@@ -13,6 +13,7 @@
 --      a frequency that is 2x the spi SCK line frequency. The divider value is passed as a generic parameter during instantiation.
 --      All parallel i/o interface operations are synchronous to the 'pclk_i' high speed clock, that can be asynchronous to the serial
 --      'sclk_i' clock.
+--      For optimized use of longlines, connect 'sclk_i' and 'pclk_i' to the same global clock line.
 --      Fully pipelined cross-clock circuitry guarantees that no setup artifacts occur on the buffers that are accessed by the two 
 --      clock domains.
 --      The block is very simple to use, and has parallel inputs and outputs that behave like a synchronous memory i/o.
@@ -143,6 +144,8 @@
 -- 2011/07/29   v1.14.0130  [JD]    Removed global signal setting at the FSM, implementing exhaustive explicit signal attributions
 --                                  for each state, to avoid reported inference problems in some synthesis engines.
 --                                  Streamlined port names and indentation blocks.
+-- 2011/08/01   v1.15.0135  [JD]    Fixed latch inference for spi_mosi_o driver at the fsm.
+--                                  The master and slave cores were verified in FPGA with continuous transmission, for all SPI modes.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
@@ -193,7 +196,7 @@ entity spi_master is
         do_transfer_o : out std_logic;                                  -- debug: internal transfer driver
         wren_o : out std_logic;                                         -- debug: internal state of the wren_i pulse stretcher
         rx_bit_reg_o : out std_logic;                                   -- debug: internal rx bit
-        state_dbg_o : out std_logic_vector (5 downto 0);                -- debug: internal state register
+        state_dbg_o : out std_logic_vector (3 downto 0);                -- debug: internal state register
         core_clk_o : out std_logic;
         core_n_clk_o : out std_logic;
         core_ce_o : out std_logic;
@@ -206,7 +209,7 @@ end spi_master;
 -- this architecture is a pipelined register-transfer description.
 -- all signals are clocked at the rising edge of the system clock 'sclk_i'.
 --================================================================================================================
-architecture RTL of spi_master is
+architecture rtl of spi_master is
     -- core clocks, generated from 'sclk_i': initialized to differential values
     signal core_clk     : std_logic := '0';     -- continuous core clock, positive logic
     signal core_n_clk   : std_logic := '1';     -- continuous core clock, negative logic
@@ -234,14 +237,14 @@ architecture RTL of spi_master is
     signal state_next : natural range N+1 downto 0 := 0;
     signal state_reg : natural range N+1 downto 0 := 0;
     -- shifter signals for register and combinatorial stages
-    signal sh_next : std_logic_vector (N-1 downto 0) := (others => '0');
-    signal sh_reg : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal sh_next : std_logic_vector (N-1 downto 0);
+    signal sh_reg : std_logic_vector (N-1 downto 0);
     -- input bit sampled buffer
     signal rx_bit_reg : std_logic := '0';
     -- buffered di_i data signals for register and combinatorial stages
-    signal di_reg : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal di_reg : std_logic_vector (N-1 downto 0);
     -- internal wren_i stretcher for fsm combinatorial stage
-    signal wren : std_logic := '0';
+    signal wren : std_logic;
     signal wr_ack_next : std_logic := '0';
     signal wr_ack_reg : std_logic := '0';
     -- internal SSEL enable control signals
@@ -251,8 +254,8 @@ architecture RTL of spi_master is
     signal sck_ena_next : std_logic;
     signal sck_ena_reg : std_logic;
     -- buffered do_o data signals for register and combinatorial stages
-    signal do_buffer_next : std_logic_vector (N-1 downto 0) := (others => '0');
-    signal do_buffer_reg : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal do_buffer_next : std_logic_vector (N-1 downto 0);
+    signal do_buffer_reg : std_logic_vector (N-1 downto 0);
     -- internal signal to flag transfer to do_buffer_reg
     signal do_transfer_next : std_logic := '0';
     signal do_transfer_reg : std_logic := '0';
@@ -309,7 +312,7 @@ begin
     -- The clock enable phase is selected for serial input sampling, fsm clocking, and spi SCK output, 
     -- based on the configuration of CPOL and CPHA.
     -- Each phase is selected so that all the registers can be clocked with a rising edge on all SPI
-    -- modes, by a single high-speed global clock, preserving clock resources.
+    -- modes, by a single high-speed global clock, preserving clock resources and clock to data skew.
     -----------------------------------------------------------------------------------------------
     -- generate the 2x spi base clock enable from the serial high-speed input clock
     spi_2x_ce_gen_proc: process (sclk_i) is
@@ -357,7 +360,6 @@ begin
     begin
         spi_clk <= core_n_clk;          -- for CPOL=1, spi clk has idle HIGH
     end generate;
-    
     -----------------------------------------------------------------------------------------------
     -- Sampling clock enable generation: generate 'samp_ce' from 'core_ce' or 'core_n_ce' depending on CPHA
     -- always sample data at the half-cycle of the fsm update cell
@@ -381,17 +383,14 @@ begin
     begin
         fsm_ce <= core_ce;              -- for CPHA=1, latch registers at rising edge of positive core clock enable
     end generate;
-
+    -----------------------------------------------------------------------------------------------
+    -- sck enable control: control sck advance phase for CPHA='1' relative to fsm clock
     sck_ena_ce <= core_n_ce;            -- for CPHA=1, SCK is advanced one-half cycle
     
     --=============================================================================================
     --  REGISTERED INPUTS
     --=============================================================================================
     -- rx bit flop: capture rx bit after SAMPLE edge of sck
-    --
-    --  ATTENTION:  REMOVING THE FLIPFLOP (DIRECT CONNECTION) WE GET HIGHER PERFORMANCE DUE TO 
-    --              REDUCED DEMAND ON MISO SETUP TIME. 
-    --
     rx_bit_proc : process (sclk_i, spi_miso_i) is
     begin
         if sclk_i'event and sclk_i = '1' then
@@ -450,7 +449,7 @@ begin
     end process in_transfer_proc;
 
     --=============================================================================================
-    --  RTL REGISTER PROCESSES
+    --  REGISTER TRANSFER PROCESSES
     --=============================================================================================
     -- fsm state and data registers: synchronous to the spi base reference clock
     core_reg_proc : process (sclk_i) is
@@ -483,7 +482,7 @@ begin
     end process core_reg_proc;
 
     --=============================================================================================
-    --  RTL combinatorial LOGIC PROCESSES
+    --  COMBINATORIAL LOGIC PROCESSES
     --=============================================================================================
     -- state and datapath combinatorial logic
     core_combi_proc : process ( sh_reg, state_reg, rx_bit_reg, ssel_ena_reg, sck_ena_reg, do_buffer_reg, 
@@ -496,22 +495,28 @@ begin
         do_transfer_next <= do_transfer_reg;                            -- output data flag
         wr_ack_next <= wr_ack_reg;                                      -- write acknowledge
         di_req_next <= di_req_reg;                                      -- prefetch data request
+        spi_mosi_o <= sh_reg(N-1);                                      -- default to avoid latch inference
         state_next <= state_reg;                                        -- next state 
-        spi_mosi_o <= sh_reg(N-1);                                      -- shift out tx bit from the MSb
         case state_reg is
             when (N+1) =>                                               -- this state is to enable SSEL before SCK
+                -- slave select
+                spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 ssel_ena_next <= '1';                                   -- tx in progress: will assert SSEL
                 sck_ena_next <= '1';                                    -- enable SCK on next cycle (stays off on first SSEL clock cycle)
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
             when (N) =>                                                 -- deassert 'di_rdy'
+                -- stretch do_valid
+                spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
                 sh_next(0) <= rx_bit_reg;                               -- shift in rx bit into LSb
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
             when (N-1) downto (PREFETCH+3) =>                           -- if rx data is valid, raise 'do_valid'. remove 'do_transfer'
+                -- send bit out and shif bit in
+                spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 do_transfer_next <= '0';                                -- reset transfer signal
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
@@ -519,12 +524,16 @@ begin
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
             when (PREFETCH+2) downto 2 =>                               -- raise prefetch 'di_req_o_next' signal and remove 'do_valid'
+                -- raise data prefetch request
+                spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
                 sh_next(0) <= rx_bit_reg;                               -- shift in rx bit into LSb
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
             when 1 =>                                                   -- transfer rx data to do_buffer and restart if wren
+                -- load next word or end transmission
+                spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 do_buffer_next(N-1 downto 1) <= sh_reg(N-2 downto 0);   -- shift rx data directly into rx buffer
                 do_buffer_next(0) <= rx_bit_reg;                        -- shift last rx bit into rx buffer
@@ -540,15 +549,17 @@ begin
                     state_next <= state_reg - 1;                        -- update next state at each sck pulse
                 end if;
             when 0 =>
+                -- idle state: start and end of transmission
                 di_req_next <= '1';                                     -- will request data if shifter empty
                 sck_ena_next <= '0';                                    -- SCK disabled: tx empty, no data to send
                 if wren = '1' then                                      -- load tx register if valid data present at di_i
+                    spi_mosi_o <= di_reg(N-1);                          -- special case: shift out first tx bit from the MSb (look ahead)
                     ssel_ena_next <= '1';                               -- enable interface SSEL
                     state_next <= N+1;                                  -- start from idle: let one cycle for SSEL settling
-                    spi_mosi_o <= di_reg(N-1);                          -- special case: shift out first tx bit from the MSb (look ahead)
                     sh_next <= di_reg;                                  -- load bits from di_reg into shifter
                     wr_ack_next <= '1';                                 -- acknowledge data in transfer
                 else
+                    spi_mosi_o <= sh_reg(N-1);                          -- shift out tx bit from the MSb
                     ssel_ena_next <= '0';                               -- deassert SSEL: interface is idle
                     wr_ack_next <= '0';                                 -- remove write acknowledge for all but the load stages
                     state_next <= 0;                                    -- when idle, keep this state
@@ -588,9 +599,9 @@ begin
     --=============================================================================================
     --  DEBUG LOGIC PROCESSES
     --=============================================================================================
-    -- these signals are useful for verification, and can be deleted or commented-out after debug.
+    -- these signals are useful for verification, and can be deleted after debug.
     do_transfer_proc:   do_transfer_o <= do_transfer_reg;
-    state_dbg_proc:     state_dbg_o <= std_logic_vector(to_unsigned(state_reg, 6));
+    state_dbg_proc:     state_dbg_o <= std_logic_vector(to_unsigned(state_reg, 4));
     rx_bit_reg_proc:    rx_bit_reg_o <= rx_bit_reg;
     wren_o_proc:        wren_o <= wren;
     sh_reg_dbg_proc:    sh_reg_dbg_o <= sh_reg;
@@ -601,5 +612,5 @@ begin
     sck_ena_o_proc:     sck_ena_o <= sck_ena_reg;
     sck_ena_ce_o_proc:  sck_ena_ce_o <= sck_ena_ce;
 
-end architecture RTL;
+end architecture rtl;
 

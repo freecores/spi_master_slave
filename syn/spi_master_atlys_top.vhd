@@ -28,6 +28,7 @@
 -- 2011/07/10   v1.10.0075  [JD]    verified spi_master_slave at 50MHz, 25MHz, 16.666MHz, 12.5MHz, 10MHz, 8.333MHz, 7.1428MHz, 
 --                                  6.25MHz, 1MHz and 500kHz 
 -- 2011/07/29   v1.12.0105  [JD]    spi_master.vhd and spi_slave_vhd changed to fix CPHA='1' bug.
+-- 2011/08/02   v1.13.0110  [JD]    testbed for continuous transfer in FPGA hardware.
 --
 --
 ----------------------------------------------------------------------------------
@@ -50,6 +51,8 @@ entity spi_master_atlys_top is
         --- output LEDs ----            
         led_o : out std_logic_vector (7 downto 0);              -- output leds
         --- debug outputs ---
+        m_state_o : out std_logic_vector (3 downto 0);          -- master spi fsm state
+        s_state_o : out std_logic_vector (3 downto 0);          -- slave spi fsm state
         dbg_o : out std_logic_vector (11 downto 0)              -- 12 generic debug pins
     );                      
 end spi_master_atlys_top;
@@ -80,14 +83,28 @@ architecture behavioral of spi_master_atlys_top is
     --=============================================================================================
     -- Type definitions
     --=============================================================================================
-    type fsm_state_type is (st_reset, st_wait_spi_idle, st_wait_new_switch, 
-                            st_send_spi_data, st_wait_spi_ack ); 
+    type fsm_master_write_state_type is 
+            (st_reset, st_wait_spi_idle, st_wait_new_switch, st_send_spi_data_sw, st_wait_spi_ack_sw, 
+            st_send_spi_data_1, st_wait_spi_ack_1, st_wait_spi_di_req_2, st_wait_spi_ack_2, 
+            st_wait_spi_di_req_3, st_wait_spi_ack_3);
+
+    type fsm_slave_write_state_type is 
+            (st_reset, st_wait_spi_start, st_wait_spi_di_req_2, st_wait_spi_ack_2, 
+            st_wait_spi_di_req_3, st_wait_spi_ack_3, st_wait_spi_end);
+
+    type fsm_slave_read_state_type is
+            (st_reset, st_wait_spi_do_valid_1, st_wait_spi_n_do_valid_1, st_wait_spi_do_valid_2, 
+            st_wait_spi_n_do_valid_2, st_wait_spi_do_valid_3, st_wait_spi_n_do_valid_3);
 
     --=============================================================================================
     -- Signals for state machine control
     --=============================================================================================
-    signal state_reg        : fsm_state_type := st_reset;
-    signal state_next       : fsm_state_type := st_reset;
+    signal m_wr_st_reg  : fsm_master_write_state_type := st_reset;
+    signal m_wr_st_next : fsm_master_write_state_type := st_reset;
+    signal s_wr_st_reg  : fsm_slave_write_state_type := st_reset;
+    signal s_wr_st_next : fsm_slave_write_state_type := st_reset;
+    signal s_rd_st_reg  : fsm_slave_read_state_type := st_reset;
+    signal s_rd_st_next : fsm_slave_read_state_type := st_reset;
 
     --=============================================================================================
     -- Signals for internal operation
@@ -124,10 +141,7 @@ architecture behavioral of spi_master_atlys_top is
     signal spi_di_reg_m     : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_di_next_m    : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_do_m         : std_logic_vector (N-1 downto 0);
-    -- spi master port debug flags
-    signal spi_rx_bit_m     : std_logic;
     signal spi_wr_ack_m     : std_logic;
-    signal state_dbg_m      : std_logic_vector (5 downto 0);
     -- spi slave port control signals
     signal spi_wren_reg_s   : std_logic := '1';
     signal spi_wren_next_s  : std_logic := '1';
@@ -138,23 +152,27 @@ architecture behavioral of spi_master_atlys_top is
     signal spi_di_reg_s     : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_di_next_s    : std_logic_vector (N-1 downto 0) := (others => '0');
     signal spi_do_s         : std_logic_vector (N-1 downto 0);
-    -- spi slave port debug flags
-    signal spi_rx_bit_s     : std_logic;
     signal spi_wr_ack_s     : std_logic;
-    signal state_dbg_s      : std_logic_vector (5 downto 0);
+    signal spi_rx_bit_s     : std_logic;
+    -- slave data output regs --
+    signal s_do_1_reg       : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal s_do_1_next      : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal s_do_2_reg       : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal s_do_2_next      : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal s_do_3_reg       : std_logic_vector (N-1 downto 0) := (others => '0');
+    signal s_do_3_next      : std_logic_vector (N-1 downto 0) := (others => '0');
     -- other signals
     signal clear            : std_logic := '0';
     -- debug output signals
-    signal leds_reg         : std_logic_vector (7 downto 0) := (others => '0');
+    signal leds_reg         : std_logic_vector (7 downto 0);
+    signal leds_next        : std_logic_vector (7 downto 0) := (others => '0');
     signal dbg              : std_logic_vector (11 downto 0) := (others => '0');
 begin
 
     --=============================================================================================
     -- COMPONENT INSTANTIATIONS FOR THE CORES UNDER TEST
     --=============================================================================================
-    -- spi master port: 
-    --      receives parallel data from the slide switches, transmits to slave port.
-    --      receives serial data from slave port, sends to 8bit parallel debug port.
+    -- spi master port: data and control signals driven by the master fsm
     Inst_spi_master_port: entity work.spi_master(rtl) 
         generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => 3, SPI_2X_CLK_DIV => SPI_2X_CLK_DIV)
         port map( 
@@ -164,62 +182,33 @@ begin
             spi_ssel_o => spi_ssel,
             spi_sck_o => spi_sck,
             spi_mosi_o => spi_mosi,
-            spi_miso_i => spi_miso,
+            spi_miso_i => spi_miso,             -- driven by the spi slave 
             di_req_o => spi_di_req_m,
             di_i => spi_di_reg_m,
             wren_i => spi_wren_reg_m,
+            wr_ack_o => spi_wr_ack_m,
             do_valid_o => spi_do_valid_m,
-            do_o => spi_do_m,
+            do_o => spi_do_m
             ------------ debug pins ------------
---            rx_bit_reg_o => spi_rx_bit_m,
---            state_dbg_o => state_dbg_m,       -- monitor internal master state register
---            sck_ena_o => sck_ena_m,           -- monitor internal sck_ena register
---            wren_o => spi_wren_o,
-            wr_ack_o => spi_wr_ack_m            -- monitor wren ack from inside spi port
         );
 
---    state_dbg_o(3 downto 0) <= state_dbg_m(3 downto 0); -- connect master state debug port
---    sck_ena_o <= sck_ena_m;                             -- sck_ena debug port
---    spi_rx_bit_m_o  <= spi_rx_bit_m;                    -- connect rx_bit monitor for master port
-
-    -- spi slave port
-    --      receives parallel data from the pushbuttons, transmits to master port.
-    --      receives serial data from master port, sends to the 8 LEDs.
+    -- spi slave port: data and control signals driven by the slave fsm
     Inst_spi_slave_port: entity work.spi_slave(rtl) 
         generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => 3)
         port map( 
             clk_i => gclk_i,
-            spi_ssel_i => spi_ssel,             -- generated by the spi master
-            spi_sck_i => spi_sck,               -- generated by the spi master
-            spi_mosi_i => spi_mosi,
+            spi_ssel_i => spi_ssel,             -- driven by the spi master
+            spi_sck_i => spi_sck,               -- driven by the spi master
+            spi_mosi_i => spi_mosi,             -- driven by the spi master
             spi_miso_o => spi_miso,
             di_req_o => spi_di_req_s,
             di_i => spi_di_reg_s,
             wren_i => spi_wren_reg_s,
+            wr_ack_o => spi_wr_ack_s,
             do_valid_o => spi_do_valid_s,
-            do_o => spi_do_s,
+            do_o => spi_do_s
             ------------ debug pins ------------
-            state_dbg_o => state_dbg_s,        -- monitor internal state register
-            rx_bit_next_o => spi_rx_bit_s,
-            wr_ack_o => dbg(5),
-            do_transfer_o => dbg(4)
         );                      
-
-    -- connect debug port pins to slave instance interface signals
-    dbg(7) <= spi_rx_bit_s;
-    dbg(6) <= spi_wren_reg_s;
-    dbg(3) <= spi_do_valid_s;
-    dbg(2) <= spi_di_req_s;
-    dbg(1) <= '0';
-    dbg(0) <= '0';
-
-    dbg(11 downto 8) <= state_dbg_s(3 downto 0);-- connect state register
-    
-    spi_di_reg_s(7) <= btn_data(btLEFT);        -- get the slave transmit data from pushbuttons
-    spi_di_reg_s(6) <= btn_data(btCENTER);
-    spi_di_reg_s(5 downto 1) <= B"10101";
-    spi_di_reg_s(0) <= btn_data(btRIGHT);
-    spi_wren_reg_s <= '1';                      -- fix wren to '1', for continuous load of transmit data
 
     -- debounce for the input switches, with new data strobe output
     Inst_sw_debouncer: entity work.grp_debouncer(rtl)
@@ -258,10 +247,11 @@ begin
     --=============================================================================================
     --  CLOCK GENERATION
     --=============================================================================================
-    -- The clock generation block derives 3 internal clocks, divided down from the 100MHz input clock 
-    --      core clock, 
-    --      spi 2x base clock,
-    --      fsm clock,
+    -- All registers are clocked directly from the 100MHz system clock.
+    -- The clock generation block derives 2 clock enable signals, divided down from the 100MHz input 
+    -- clock. 
+    --      input sample clock enable, 
+    --      fsm clock enable,
     -----------------------------------------------------------------------------------------------
     -- generate the sampling clock enable from the 100MHz board input clock 
     samp_ce_gen_proc: process (gclk_i) is
@@ -269,7 +259,7 @@ begin
     begin
         if gclk_i'event and gclk_i = '1' then
             if clk_cnt = SAMP_CE_DIV-1 then
-                samp_ce <= '1';
+                samp_ce <= '1';                 -- generate a single pulse every SAMP_CE_DIV clocks
                 clk_cnt := 0;
             else
                 samp_ce <= '0';
@@ -283,7 +273,7 @@ begin
     begin
         if gclk_i'event and gclk_i = '1' then
             if clk_cnt = FSM_CE_DIV-1 then
-                fsm_ce <= '1';
+                fsm_ce <= '1';                  -- generate a single pulse every FSM_CE_DIV clocks
                 clk_cnt := 0;
             else
                 fsm_ce <= '0';
@@ -301,7 +291,7 @@ begin
         if gclk_i'event and gclk_i = '1' then
             if samp_ce = '1' then
                 clear <= btn_data(btUP);        -- clear is button UP
-                leds_reg <= spi_do_s;           -- update LEDs with spi_slave received data
+                leds_reg <= leds_next;          -- update LEDs with spi_slave received data
             end if;
         end if;
     end process samp_inputs_proc;
@@ -309,28 +299,48 @@ begin
     --=============================================================================================
     --  REGISTER TRANSFER PROCESSES
     --=============================================================================================
-    -- fsm state and data registers: synchronous to the spi base reference clock
+    -- fsm state and data registers: synchronous to the system clock
     fsm_reg_proc : process (gclk_i) is
     begin
         -- FFD registers clocked on rising edge and cleared on sync 'clear'
         if gclk_i'event and gclk_i = '1' then
-            if clear = '1' then                 -- sync reset
-                state_reg <= st_reset;          -- only provide local reset for the state register
+            if clear = '1' then                     -- sync reset
+                m_wr_st_reg <= st_reset;            -- only provide local reset for the state registers
             else
                 if fsm_ce = '1' then
-                    state_reg <= state_next;    -- state register
+                    m_wr_st_reg <= m_wr_st_next;    -- master write state register update
+                end if;
+            end if;
+        end if;
+        -- FFD registers clocked on rising edge and cleared on ssel = '1'
+        if gclk_i'event and gclk_i = '1' then
+            if spi_ssel = '1' then                  -- sync reset
+                s_wr_st_reg <= st_reset;            -- only provide local reset for the state registers
+                s_rd_st_reg <= st_reset;
+            else
+                if fsm_ce = '1' then
+                    s_wr_st_reg <= s_wr_st_next;    -- slave write state register update
+                    s_rd_st_reg <= s_rd_st_next;    -- slave read state register update
                 end if;
             end if;
         end if;
         -- FFD registers clocked on rising edge, with no reset
         if gclk_i'event and gclk_i = '1' then
             if fsm_ce = '1' then
+                --------- master write fsm signals -----------
                 spi_wren_reg_m <= spi_wren_next_m;
                 spi_di_reg_m <= spi_di_next_m;
                 spi_rst_reg <= spi_rst_next;
                 spi_ssel_reg <= spi_ssel;
                 sw_reg <= sw_next;
                 btn_reg <= btn_next;
+                --------- slave write fsm signals -----------
+                spi_wren_reg_s <= spi_wren_next_s;
+                spi_di_reg_s <= spi_di_next_s;
+                --------- slave read fsm signals -----------
+                s_do_1_reg <= s_do_1_next;
+                s_do_2_reg <= s_do_2_next;
+                s_do_3_reg <= s_do_3_next;
             end if;
         end if;
     end process fsm_reg_proc;
@@ -339,62 +349,228 @@ begin
     --  COMBINATORIAL NEXT-STATE LOGIC PROCESSES
     --=============================================================================================
     -- edge detector for new switch data
-    new_switch_proc: new_switch <= '1' when sw_data /= sw_reg else '0';     -- '1' for difference
+    new_switch_proc: new_switch <= '1' when sw_data /= sw_reg else '0';     -- '1' for edge
+
     -- edge detector for new button data
-    new_button_proc: new_button <= '1' when btn_data /= btn_reg else '0';   -- '1' for difference
-    -- fsm state and combinatorial logic
-    -- the sequencer will wait for a new switch combination, and send the switch data to the spi port
-    fsm_combi_proc: process (   state_reg, spi_wren_reg_m, spi_di_reg_m, spi_di_req_m, spi_wr_ack_m, -- spi_di_reg_s, 
-                                spi_wren_reg_s, spi_ssel_reg, spi_rst_reg, sw_data, 
-                                sw_reg, new_switch, btn_data, btn_reg, new_button) is
+    new_button_proc: new_button <= '1' when btn_data /= btn_reg else '0';   -- '1' for edge
+
+    -- master port fsm state and combinatorial logic
+    fsm_m_wr_combi_proc: process ( m_wr_st_reg, spi_wren_reg_m, spi_di_reg_m, spi_di_req_m, spi_wr_ack_m, 
+                                spi_ssel_reg, spi_rst_reg, sw_data, sw_reg, new_switch, btn_data, btn_reg, 
+                                new_button) is
     begin
         spi_rst_next <= spi_rst_reg;
         spi_di_next_m <= spi_di_reg_m;
         spi_wren_next_m <= spi_wren_reg_m;
         sw_next <= sw_reg;
         btn_next <= btn_reg;
-        state_next <= state_reg;
-        case state_reg is
+        m_wr_st_next <= m_wr_st_reg;
+        case m_wr_st_reg is
             when st_reset =>
                 spi_rst_next <= '1';                        -- place spi interface on reset
                 spi_di_next_m <= (others => '0');           -- clear spi data port
-                spi_di_next_s <= (others => '0');           -- clear spi data port
                 spi_wren_next_m <= '0';                     -- deassert write enable
-                spi_wren_next_s <= '0';                     -- deassert write enable
-                state_next <= st_wait_spi_idle;
+                m_wr_st_next <= st_wait_spi_idle;
                 
             when st_wait_spi_idle =>
                 spi_wren_next_m <= '0';                     -- remove write strobe on next clock
                 if spi_ssel_reg = '1' then
                     spi_rst_next <= '0';                    -- remove reset when interface is idle
-                    state_next <= st_wait_new_switch;
+                    m_wr_st_next <= st_wait_new_switch;
                 end if;
 
             when st_wait_new_switch =>
                 if new_switch = '1' then                    -- wait for new stable switch data
                     sw_next <= sw_data;                     -- load new switch data (end the mismatch condition)
-                    state_next <= st_send_spi_data;
+                    m_wr_st_next <= st_send_spi_data_sw;
                 elsif new_button = '1' then
                     btn_next <= btn_data;                   -- load new button data (end the mismatch condition)
-                    if btn_data /= B"000001" then
-                        state_next <= st_send_spi_data;
+                    if btn_data(btUP) = '0' then
+                        if btn_data(btDOWN) = '1' then
+                            m_wr_st_next <= st_send_spi_data_sw;
+                        elsif btn_data(btLEFT) = '1' then
+                            m_wr_st_next <= st_send_spi_data_1;
+                        elsif btn_data(btCENTER) = '1' then
+                            m_wr_st_next <= st_send_spi_data_1;
+                        elsif btn_data(btRIGHT) = '1' then
+                            m_wr_st_next <= st_send_spi_data_1;
+                        end if;
                     end if;
                 end if;
             
-            when st_send_spi_data =>
+            when st_send_spi_data_sw =>
                 spi_di_next_m <= sw_reg;                    -- load switch register to the spi port
                 spi_wren_next_m <= '1';                     -- write data on next clock
-                state_next <= st_wait_spi_ack;
+                m_wr_st_next <= st_wait_spi_ack_sw;
 
-            when st_wait_spi_ack =>                         -- the actual write happens on this state
-                spi_di_next_m <= sw_reg;                    -- load switch register to the spi port
-                spi_wren_next_m <= '0';                     -- remove write strobe on next clock
-                state_next <= st_wait_spi_idle;
+            when st_wait_spi_ack_sw =>                      -- the actual write happens on this state
+                if spi_wr_ack_m = '1' then
+                    spi_wren_next_m <= '0';                 -- remove write strobe on next clock
+                    m_wr_st_next <= st_wait_spi_di_req_2;
+                end if;
+                
+            when st_send_spi_data_1 =>
+                spi_di_next_m <= X"A1";                     -- load switch register to the spi port
+                spi_wren_next_m <= '1';                     -- write data on next clock
+                m_wr_st_next <= st_wait_spi_ack_1;
+
+            when st_wait_spi_ack_1 =>                       -- the actual write happens on this state
+                if spi_wr_ack_m = '1' then
+                    spi_wren_next_m <= '0';                 -- remove write strobe on next clock
+                    m_wr_st_next <= st_wait_spi_di_req_2;
+                end if;
+                
+            when st_wait_spi_di_req_2 =>
+                if spi_di_req_m = '1' then
+                    spi_di_next_m <= X"A2";
+                    spi_wren_next_m <= '1';
+                    m_wr_st_next <= st_wait_spi_ack_2;
+                end if;
         
+            when st_wait_spi_ack_2 =>                       -- the actual write happens on this state
+                if spi_wr_ack_m = '1' then
+                    spi_wren_next_m <= '0';                 -- remove write strobe on next clock
+                    m_wr_st_next <= st_wait_spi_di_req_3;
+                end if;
+                
+            when st_wait_spi_di_req_3 =>
+                if spi_di_req_m = '1' then
+                    spi_di_next_m <= X"A3";
+                    spi_wren_next_m <= '1';
+                    m_wr_st_next <= st_wait_spi_ack_3;
+                end if;
+
+            when st_wait_spi_ack_3 =>                       -- the actual write happens on this state
+                if spi_wr_ack_m = '1' then
+                    spi_wren_next_m <= '0';                 -- remove write strobe on next clock
+                    m_wr_st_next <= st_wait_spi_idle;       -- wait transmission end
+                end if;
+                
             when others =>
-                state_next <= st_reset;                     -- state st_reset is safe state
+                m_wr_st_next <= st_reset;                   -- state st_reset is safe state
+                
         end case; 
-    end process fsm_combi_proc;
+    end process fsm_m_wr_combi_proc;
+
+    -- slave port fsm state and combinatorial logic
+    fsm_s_wr_combi_proc: process (  s_wr_st_reg, spi_di_req_s, spi_wr_ack_s, 
+                                    spi_di_reg_s, spi_wren_reg_s, spi_ssel_reg) is
+    begin
+        spi_wren_next_s <= spi_wren_reg_s;
+        spi_di_next_s <= spi_di_reg_s;
+        s_wr_st_next <= s_wr_st_reg;
+        case s_wr_st_reg is
+            when st_reset =>
+                spi_di_next_s <= X"D1";                     -- write first data word
+                spi_wren_next_s <= '1';                     -- set write enable
+                s_wr_st_next <= st_wait_spi_start;
+                
+            when st_wait_spi_start =>
+                if spi_ssel_reg = '0' then                  -- wait for slave select
+                    spi_wren_next_s <= '0';                 -- remove write enable
+                    s_wr_st_next <= st_wait_spi_di_req_2;
+                end if;
+
+            when st_wait_spi_di_req_2 =>
+                if spi_di_req_s = '1' then
+                    spi_di_next_s <= X"D2";
+                    spi_wren_next_s <= '1';
+                    s_wr_st_next <= st_wait_spi_ack_2;
+                end if;
+        
+            when st_wait_spi_ack_2 =>                       -- the actual write happens on this state
+                if spi_wr_ack_s = '1' then
+                    spi_wren_next_s <= '0';                 -- remove write strobe on next clock
+                    s_wr_st_next <= st_wait_spi_di_req_3;
+                end if;
+                
+            when st_wait_spi_di_req_3 =>
+                if spi_di_req_s = '1' then
+                    spi_di_next_s <= X"D3";
+                    spi_wren_next_s <= '1';
+                    s_wr_st_next <= st_wait_spi_ack_3;
+                end if;
+
+            when st_wait_spi_ack_3 =>                       -- the actual write happens on this state
+                if spi_wr_ack_s = '1' then
+                    spi_wren_next_s <= '0';                 -- remove write strobe on next clock
+                    s_wr_st_next <= st_wait_spi_end;        -- wait transmission end
+                end if;
+            
+            when st_wait_spi_end =>                         -- wait interface to be deselected
+                if spi_ssel_reg = '1' then
+                    s_wr_st_next <= st_reset;               -- wait transmission start
+                end if;
+            
+            when others =>
+                s_wr_st_next <= st_reset;                   -- state st_reset is safe state
+                
+        end case; 
+    end process fsm_s_wr_combi_proc;
+
+    -- slave port fsm state and combinatorial logic
+    fsm_s_rd_combi_proc: process ( s_rd_st_reg, spi_do_valid_s, spi_do_s, s_do_1_reg, s_do_2_reg, s_do_3_reg) is
+    begin
+        s_do_1_next <= s_do_1_reg;
+        s_do_2_next <= s_do_2_reg;
+        s_do_3_next <= s_do_3_reg;
+        s_rd_st_next <= s_rd_st_reg;
+        case s_rd_st_reg is
+            when st_reset =>
+                s_rd_st_next <= st_wait_spi_do_valid_1;
+                
+            when st_wait_spi_do_valid_1 =>
+                if spi_do_valid_s = '1' then                -- wait for receive data ready
+                    s_do_1_next <= spi_do_s;                -- read data from output port
+                    s_rd_st_next <= st_wait_spi_n_do_valid_1;
+                end if;
+
+            when st_wait_spi_n_do_valid_1 =>
+                if spi_do_valid_s = '0' then
+                    s_rd_st_next <= st_wait_spi_do_valid_2;
+                end if;
+        
+            when st_wait_spi_do_valid_2 =>
+                if spi_do_valid_s = '1' then                -- wait for receive data ready
+                    s_do_2_next <= spi_do_s;                -- read data from output port
+                    s_rd_st_next <= st_wait_spi_n_do_valid_2;
+                end if;
+
+            when st_wait_spi_n_do_valid_2 =>
+                if spi_do_valid_s = '0' then
+                    s_rd_st_next <= st_wait_spi_do_valid_3;
+                end if;
+        
+            when st_wait_spi_do_valid_3 =>
+                if spi_do_valid_s = '1' then                -- wait for receive data ready
+                    s_do_3_next <= spi_do_s;                -- read data from output port
+                    s_rd_st_next <= st_wait_spi_n_do_valid_3;
+                end if;
+                
+            when st_wait_spi_n_do_valid_3 =>
+                if spi_do_valid_s = '0' then
+                    s_rd_st_next <= st_reset;
+                end if;
+
+            when others =>
+                s_rd_st_next <= st_reset;                   -- state st_reset is safe state
+                
+        end case; 
+    end process fsm_s_rd_combi_proc;
+
+    leds_combi_proc: process (btn_data, leds_reg, s_do_1_reg, s_do_2_reg, s_do_3_reg) is
+    begin
+        leds_next <= leds_reg;
+        if btn_data(btRIGHT) = '1' then
+            leds_next <= s_do_3_reg;
+        elsif btn_data(btCENTER) = '1' then
+            leds_next <= s_do_2_reg;
+        elsif btn_data(btLEFT) = '1' then
+            leds_next <= s_do_1_reg;
+        elsif btn_data(btDOWN) = '1' then
+            leds_next <= s_do_1_reg;
+        end if;
+    end process leds_combi_proc;
 
     --=============================================================================================
     --  OUTPUT LOGIC PROCESSES
@@ -405,13 +581,25 @@ begin
     spi_mosi_o_proc:        spi_mosi_o      <= spi_mosi;
     spi_miso_o_proc:        spi_miso_o      <= spi_miso;
     -- connect leds_reg signal to LED outputs
-    led_o_proc:             led_o           <= leds_reg;        
+    led_o_proc:             led_o           <= leds_reg;
 
     --=============================================================================================
     --  DEBUG LOGIC PROCESSES
     --=============================================================================================
     -- connect the debug vector outputs
     dbg_o_proc:             dbg_o <= dbg;
+    
+    -- connect debug port pins to spi ports instances interface signals
+    -- master signals mapped on dbg
+    dbg(11) <= spi_wren_reg_m;
+    dbg(10) <= spi_wr_ack_m;
+    dbg(9)  <= spi_di_req_m;
+    dbg(8)  <= spi_do_valid_m;
+    -- slave signals mapped on dbg
+    dbg(7)  <= spi_wren_reg_s;
+    dbg(6)  <= spi_wr_ack_s;
+    dbg(5)  <= spi_di_req_s;
+    dbg(4)  <= spi_do_valid_s;
 
 end behavioral;
 
