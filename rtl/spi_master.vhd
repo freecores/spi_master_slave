@@ -146,6 +146,7 @@
 --                                  Streamlined port names and indentation blocks.
 -- 2011/08/01   v1.15.0135  [JD]    Fixed latch inference for spi_mosi_o driver at the fsm.
 --                                  The master and slave cores were verified in FPGA with continuous transmission, for all SPI modes.
+-- 2011/08/04   v1.15.0136  [JD]    Fixed assertions (PREFETCH >= 1) and minor comment bugs.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
@@ -283,19 +284,19 @@ begin
     -- minimum word width is 8 bits
     assert N >= 8
     report "Generic parameter 'N' (shift register size) needs to be 8 bits minimum"
-    severity FAILURE;    
+    severity FAILURE;
     -- minimum prefetch lookahead check
-    assert PREFETCH >= 2
+    assert PREFETCH >= 1
     report "Generic parameter 'PREFETCH' (lookahead count) needs to be 1 minimum"
-    severity FAILURE;    
+    severity FAILURE;
     -- maximum prefetch lookahead check
     assert PREFETCH <= N-5
     report "Generic parameter 'PREFETCH' (lookahead count) out of range, needs to be N-5 maximum"
-    severity FAILURE;    
+    severity FAILURE;
     -- SPI_2X_CLK_DIV clock divider value must not be zero
     assert SPI_2X_CLK_DIV > 0
     report "Generic parameter 'SPI_2X_CLK_DIV' must not be zero"
-    severity FAILURE;    
+    severity FAILURE;
 
     --=============================================================================================
     --  CLOCK GENERATION
@@ -498,41 +499,41 @@ begin
         spi_mosi_o <= sh_reg(N-1);                                      -- default to avoid latch inference
         state_next <= state_reg;                                        -- next state 
         case state_reg is
+        
             when (N+1) =>                                               -- this state is to enable SSEL before SCK
-                -- slave select
                 spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 ssel_ena_next <= '1';                                   -- tx in progress: will assert SSEL
                 sck_ena_next <= '1';                                    -- enable SCK on next cycle (stays off on first SSEL clock cycle)
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
-            when (N) =>                                                 -- deassert 'di_rdy'
-                -- stretch do_valid
+                
+            when (N) =>                                                 -- deassert 'di_rdy' and stretch do_valid
                 spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
                 sh_next(0) <= rx_bit_reg;                               -- shift in rx bit into LSb
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
-            when (N-1) downto (PREFETCH+3) =>                           -- if rx data is valid, raise 'do_valid'. remove 'do_transfer'
-                -- send bit out and shif bit in
+                
+            when (N-1) downto (PREFETCH+3) =>                           -- remove 'do_transfer' and shift bits
                 spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
-                do_transfer_next <= '0';                                -- reset transfer signal
+                do_transfer_next <= '0';                                -- reset 'do_valid' transfer signal
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
                 sh_next(0) <= rx_bit_reg;                               -- shift in rx bit into LSb
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
-            when (PREFETCH+2) downto 2 =>                               -- raise prefetch 'di_req_o_next' signal and remove 'do_valid'
-                -- raise data prefetch request
+                
+            when (PREFETCH+2) downto 2 =>                               -- raise prefetch 'di_req_o' signal
                 spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 sh_next(N-1 downto 1) <= sh_reg(N-2 downto 0);          -- shift inner bits
                 sh_next(0) <= rx_bit_reg;                               -- shift in rx bit into LSb
                 wr_ack_next <= '0';                                     -- remove write acknowledge for all but the load stages
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
-            when 1 =>                                                   -- transfer rx data to do_buffer and restart if wren
-                -- load next word or end transmission
+                
+            when 1 =>                                                   -- transfer rx data to do_buffer and restart if new data is written
                 spi_mosi_o <= sh_reg(N-1);                              -- shift out tx bit from the MSb
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 do_buffer_next(N-1 downto 1) <= sh_reg(N-2 downto 0);   -- shift rx data directly into rx buffer
@@ -548,8 +549,8 @@ begin
                     wr_ack_next <= '0';                                 -- remove write acknowledge for all but the load stages
                     state_next <= state_reg - 1;                        -- update next state at each sck pulse
                 end if;
-            when 0 =>
-                -- idle state: start and end of transmission
+                
+            when 0 =>                                                   -- idle state: start and end of transmission
                 di_req_next <= '1';                                     -- will request data if shifter empty
                 sck_ena_next <= '0';                                    -- SCK disabled: tx empty, no data to send
                 if wren = '1' then                                      -- load tx register if valid data present at di_i
@@ -564,6 +565,7 @@ begin
                     wr_ack_next <= '0';                                 -- remove write acknowledge for all but the load stages
                     state_next <= 0;                                    -- when idle, keep this state
                 end if;
+                
             when others =>
                 state_next <= 0;                                        -- state 0 is safe state
         end case; 

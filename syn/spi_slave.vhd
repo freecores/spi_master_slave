@@ -119,6 +119,7 @@
 --                                  Simulated in iSim with the master core for continuous transmission mode.
 -- 2011/08/02   v2.02.0120  [JD]    Added mux for MISO at reset state, to output di(N-1) at start. This fixed a bug in first bit.
 --                                  The master and slave cores were verified in FPGA with continuous transmission, for all SPI modes.
+-- 2011/08/04   v2.02.0121  [JD]    Changed minor comment bugs in the combinatorial fsm logic.
 --
 --                                                                   
 -----------------------------------------------------------------------------------------------------------------------
@@ -336,8 +337,7 @@ begin
         state_next <= state_reg;                                        -- fsm control state
         case state_reg is
         
-            when (N) =>
-                -- stretch do_valid
+            when (N) =>                                                 -- deassert 'di_rdy' and stretch do_valid
                 wr_ack_next <= '0';                                     -- acknowledge data in transfer
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 tx_bit_next <= sh_reg(N-1);                             -- output next MSbit
@@ -345,9 +345,8 @@ begin
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
                 
-            when (N-1) downto (PREFETCH+3) =>
-                -- send bit out and shif bit in
-                do_transfer_next <= '0';                                -- reset transfer signal
+            when (N-1) downto (PREFETCH+3) =>                           -- remove 'do_transfer' and shift bits
+                do_transfer_next <= '0';                                -- reset 'do_valid' transfer signal
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 wr_ack_next <= '0';                                     -- remove data load ack for all but the load stages
                 tx_bit_next <= sh_reg(N-1);                             -- output next MSbit
@@ -355,8 +354,7 @@ begin
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
                 
-            when (PREFETCH+2) downto 3 =>
-                -- raise data prefetch request
+            when (PREFETCH+2) downto 3 =>                               -- raise prefetch 'di_req_o' signal
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 wr_ack_next <= '0';                                     -- remove data load ack for all but the load stages
                 tx_bit_next <= sh_reg(N-1);                             -- output next MSbit
@@ -364,8 +362,7 @@ begin
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
                 
-            when 2 =>
-                -- transfer parallel data on next state
+            when 2 =>                                                   -- transfer received data to do_buffer_reg on next cycle
                 di_req_next <= '1';                                     -- request data in advance to allow for pipeline delays
                 wr_ack_next <= '0';                                     -- remove data load ack for all but the load stages
                 tx_bit_next <= sh_reg(N-1);                             -- output next MSbit
@@ -375,8 +372,7 @@ begin
                 do_buffer_next <= sh_next;                              -- get next data directly into rx buffer
                 state_next <= state_reg - 1;                            -- update next state at each sck pulse
                 
-            when 1 =>
-                -- restart from state 'N' if more sck pulses come
+            when 1 =>                                                   -- transfer rx data to do_buffer and restart if new data is written
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);          -- shift inner bits
                 tx_bit_next <= di_reg(N-1);                             -- first output bit comes from the MSb of parallel data
@@ -390,7 +386,7 @@ begin
                     state_next <= 0;                                    -- next state is idle state
                 end if;
                 
-            when 0 =>
+            when 0 =>                                                   -- idle state: start and end of transmission
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);          -- shift inner bits
                 wr_ack_next <= '1';                                     -- acknowledge data in transfer
