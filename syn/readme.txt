@@ -30,7 +30,9 @@ spi_master_atlys_top_bit.zip	bitgen file to program the Atlys board
 If you need assistance on putting this to work, please place a thread in the OpenCores forum, and I will be glad to answer.
 
 If you find a bug or a design fault in the models, or if you have an issue that you like to be addressed, please open a bug/issue in the OpenCores bugtracker for this project, at 
+
 		http://opencores.org/project,spi_master_slave,bugtracker
+
 
 In any case, thank you very much for testing this core.
 
