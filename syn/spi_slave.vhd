@@ -120,6 +120,11 @@
 -- 2011/08/02   v2.02.0120  [JD]    Added mux for MISO at reset state, to output di(N-1) at start. This fixed a bug in first bit.
 --                                  The master and slave cores were verified in FPGA with continuous transmission, for all SPI modes.
 -- 2011/08/04   v2.02.0121  [JD]    Changed minor comment bugs in the combinatorial fsm logic.
+-- 2011/08/08   v2.02.0122  [JD]    FIX: continuous transfer mode bug. When wren_i is not strobed prior to state 1 (last bit), the
+--                                  sequencer goes to state 0, and then to state 'N' again. This produces a wrong bit-shift for received
+--                                  data. The fix consists in engaging continuous transfer regardless of the user strobing write enable, and
+--                                  sequencing from state 1 to N as long as the master clock is present. If the user does not write new 
+--                                  data, the last data word is repeated.
 --
 --                                                                   
 -----------------------------------------------------------------------------------------------------------------------
@@ -377,13 +382,11 @@ begin
                 sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);          -- shift inner bits
                 tx_bit_next <= di_reg(N-1);                             -- first output bit comes from the MSb of parallel data
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
+                state_next <= N;                                  	    -- next state is top bit of new data
                 if wren = '1' then                                      -- load tx register if valid data present at di_reg
                     wr_ack_next <= '1';                                 -- acknowledge data in transfer
-                    state_next <= N;                                  	-- next state is top bit of new data
                 else
                     wr_ack_next <= '0';                                 -- remove data load ack for all but the load stages
-                    sh_next <= (others => '0');                         -- load null data (output '0' if no load)
-                    state_next <= 0;                                    -- next state is idle state
                 end if;
                 
             when 0 =>                                                   -- idle state: start and end of transmission
