@@ -125,6 +125,8 @@
 --                                  data. The fix consists in engaging continuous transfer regardless of the user strobing write enable, and
 --                                  sequencing from state 1 to N as long as the master clock is present. If the user does not write new 
 --                                  data, the last data word is repeated.
+-- 2011/08/08   v2.02.0123  [JD]    ISSUE: continuous transfer mode bug, for ignored 'di_req' cycles. Instead of repeating the last data word, 
+--                                  the slave will send (others => '0') instead.
 --
 --                                                                   
 -----------------------------------------------------------------------------------------------------------------------
@@ -379,23 +381,25 @@ begin
                 
             when 1 =>                                                   -- transfer rx data to do_buffer and restart if new data is written
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
-                sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);          -- shift inner bits
-                tx_bit_next <= di_reg(N-1);                             -- first output bit comes from the MSb of parallel data
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 state_next <= N;                                  	    -- next state is top bit of new data
                 if wren = '1' then                                      -- load tx register if valid data present at di_reg
                     wr_ack_next <= '1';                                 -- acknowledge data in transfer
+                    sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);      -- shift inner bits
+                    tx_bit_next <= di_reg(N-1);                         -- first output bit comes from the MSb of parallel data
                 else
-                    wr_ack_next <= '0';                                 -- remove data load ack for all but the load stages
+                    wr_ack_next <= '0';                                 -- no data reload for continuous transfer mode
+                    sh_next(N-1 downto 1) <= (others => '0');           -- clear transmit shift register
+                    tx_bit_next <= '0';                                 -- send ZERO
                 end if;
                 
             when 0 =>                                                   -- idle state: start and end of transmission
                 sh_next(0) <= rx_bit_next;                              -- shift in rx bit into LSb
                 sh_next(N-1 downto 1) <= di_reg(N-2 downto 0);          -- shift inner bits
+                tx_bit_next <= di_reg(N-1);                             -- first output bit comes from the MSb of parallel data
                 wr_ack_next <= '1';                                     -- acknowledge data in transfer
                 di_req_next <= '0';                                     -- prefetch data request: deassert when shifting data
                 do_transfer_next <= '0';                                -- clear signal transfer to do_buffer
-                tx_bit_next <= di_reg(N-1);                             -- first output bit comes from the MSb of parallel data
                 state_next <= N;                                        -- next state is top bit of new data
                 
             when others =>
