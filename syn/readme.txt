@@ -11,33 +11,31 @@ This circuit also includes a very robust debouncing circuit to use with multiple
 The files are:
 -------------
 
-spi_master.vhd			vhdl model for the spi_master interface
-spi_slave.vhd			vhdl model for the spi_slave interface
-grp_debouncer.vhd		vhdl model for the switch debouncer
-spi_master_atlys_top.vhd	vhdl model for the toplevel block to synthesize for the Atlys board
-spi_master_atlys_test.vhd	testbench for the synthesizable toplevel 'spi_master_atlys_top.vhd'
-spi_master_atlys.xise		ISE 13.1 project file
-spi_master_atlys.ucf		pin lock constraints for the Atlys board
-spi_master_scope_photos.zip	Tektronix MSO2014 screenshots for the verification tests
-spi_master_envsettings.html	synthesis env settings, with the tools setup used
-ATLYS_01.SET			Tek MSO2014 settings files with the debug pin names
-ATLYS_02.SET			
-ATLYS_03.SET			
-spi_master_atlys_top_bit.zip	bitgen file to program the Atlys board
+spi_master.vhd                  vhdl model for the spi_master interface
+spi_slave.vhd                   vhdl model for the spi_slave interface
+grp_debouncer.vhd               vhdl model for the switch debouncer
+spi_master_atlys_top.vhd        vhdl model for the toplevel block to synthesize for the Atlys board
+spi_master_atlys_test.vhd       testbench for the synthesizable toplevel 'spi_master_atlys_top.vhd'
+spi_master_atlys.xise           ISE 13.1 project file
+spi_master_atlys.ucf            pin lock constraints for the Atlys board
+spi_master_scope_photos.zip     Tektronix MSO2014 screenshots for the verification tests
+spi_master_envsettings.html     synthesis env settings, with the tools setup used
+ATLYS_0x.SET                    Tek MSO2014 settings files with the debug pin names
+spi_master_atlys_top_bit.zip    bitgen file to program the Atlys board
 
 
 
-If you need assistance on putting this to work, please place a thread in the OpenCores forum, and I will be glad to answer.
+If you need assistance on putting this to work, please place a thread in the OpenCores forum, and I will be glad to answer, or send me e-mail: jdoin@opencores.org
 
 If you find a bug or a design fault in the models, or if you have an issue that you like to be addressed, please open a bug/issue in the OpenCores bugtracker for this project, at 
 
 		http://opencores.org/project,spi_master_slave,bugtracker
 
+If you find this core useful, please let me know: jdoin@opencores.org
 
 In any case, thank you very much for testing this core.
 
 
 Jonny Doin
 jdoin@opencores.org
-
 

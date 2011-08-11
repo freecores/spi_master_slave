@@ -101,6 +101,8 @@ begin
         sw_i => sw_data,
         btn_i => btn_data,
         led_o => leds,
+        m_do_o => m_do_reg,
+        s_do_o => s_do_reg,
         m_state_o => master_state,
         s_state_o => slave_state,
         dbg_o => dbg
@@ -111,6 +113,7 @@ begin
     wr_ack_m    <= dbg(10);
     di_req_m    <= dbg(9);
     do_valid_m  <= dbg(8);
+    
     -- slave signals mapped on dbg
     wren_s      <= dbg(7);
     wr_ack_s    <= dbg(6);
@@ -136,14 +139,18 @@ begin
     begin
         wait for 100 ns; -- wait until global set/reset completes
 
-        btn_data(btRESET) <= '1';
+        btn_data(btUP) <= '1';
         wait for 1 us;
-        btn_data(btRESET) <= '0';
-        wait for 900 ns;
-        
-        sw_data <= X"5A";
-        
-        wait; -- will wait forever
+        btn_data(btUP) <= '0';
+        sw_data <= X"81";
+        wait for 5 us;
+        sw_data <= X"C1";
+        wait for 5 us;
+        sw_data <= X"C9";
+        wait for 5 us;
+        sw_data <= X"55";
+        wait for 5 us;
+        assert false report "End Simulation" severity failure; -- stop simulation
     end process tb;
     --  End Test Bench 
 END;

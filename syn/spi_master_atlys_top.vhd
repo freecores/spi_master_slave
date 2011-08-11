@@ -51,6 +51,8 @@ entity spi_master_atlys_top is
         --- output LEDs ----            
         led_o : out std_logic_vector (7 downto 0);              -- output leds
         --- debug outputs ---
+        s_do_o : out std_logic_vector (7 downto 0);
+        m_do_o : out std_logic_vector (7 downto 0);
         m_state_o : out std_logic_vector (3 downto 0);          -- master spi fsm state
         s_state_o : out std_logic_vector (3 downto 0);          -- slave spi fsm state
         dbg_o : out std_logic_vector (11 downto 0)              -- 12 generic debug pins
@@ -69,8 +71,8 @@ architecture behavioral of spi_master_atlys_top is
     constant SAMP_CE_DIV        : integer := 1;     -- board signals sampled at 100MHz
     -- spi port generics
     constant N      : integer   := 8;               -- 8 bits
-    constant CPOL   : std_logic := '1';
-    constant CPHA   : std_logic := '1';
+    constant CPOL   : std_logic := '0';
+    constant CPHA   : std_logic := '0';
     
     -- button definitions
     constant btRESET    : integer := 0;             -- these are constants to use as btn_i(x)
@@ -89,7 +91,7 @@ architecture behavioral of spi_master_atlys_top is
             st_wait_spi_di_req_3, st_wait_spi_ack_3);
 
     type fsm_slave_write_state_type is 
-            (st_reset, st_wait_spi_start, st_wait_spi_di_req_2, st_wait_spi_ack_2, 
+            (st_reset, st_wait_spi_start, st_wait_spi_di_req_2, st_wait_spi_ack_2, st_wait_spi_do_valid_1,
             st_wait_spi_di_req_3, st_wait_spi_ack_3, st_wait_spi_end);
 
     type fsm_slave_read_state_type is
@@ -154,6 +156,9 @@ architecture behavioral of spi_master_atlys_top is
     signal spi_do_s         : std_logic_vector (N-1 downto 0);
     signal spi_wr_ack_s     : std_logic;
     signal spi_rx_bit_s     : std_logic;
+    -- spi debug data --
+    signal spi_state_m      : std_logic_vector (3 downto 0);
+    signal spi_state_s      : std_logic_vector (3 downto 0);
     -- slave data output regs --
     signal s_do_1_reg       : std_logic_vector (N-1 downto 0) := (others => '0');
     signal s_do_1_next      : std_logic_vector (N-1 downto 0) := (others => '0');
@@ -188,8 +193,9 @@ begin
             wren_i => spi_wren_reg_m,
             wr_ack_o => spi_wr_ack_m,
             do_valid_o => spi_do_valid_m,
-            do_o => spi_do_m
+            do_o => spi_do_m,
             ------------ debug pins ------------
+            state_dbg_o => spi_state_m          -- debug: internal state register
         );
 
     -- spi slave port: data and control signals driven by the slave fsm
@@ -206,13 +212,14 @@ begin
             wren_i => spi_wren_reg_s,
             wr_ack_o => spi_wr_ack_s,
             do_valid_o => spi_do_valid_s,
-            do_o => spi_do_s
+            do_o => spi_do_s,
             ------------ debug pins ------------
+            state_dbg_o => spi_state_s          -- debug: internal state register
         );                      
 
     -- debounce for the input switches, with new data strobe output
     Inst_sw_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 8, CNT_VAL => 20000)  -- debounce 8 inputs with 200 us settling time
+        generic map (N => 8, CNT_VAL => 200)  -- debounce 8 inputs with 200 us settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => sw_i,                     -- noisy input data
@@ -221,7 +228,7 @@ begin
 
     -- debounce for the input pushbuttons, with new data strobe output
     Inst_btn_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 6, CNT_VAL => 20000)  -- debounce 6 inputs with 200 us settling time
+        generic map (N => 6, CNT_VAL => 200)  -- debounce 6 inputs with 200 us settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => btn_i,                    -- noisy input data
@@ -357,7 +364,7 @@ begin
     -- master port fsm state and combinatorial logic
     fsm_m_wr_combi_proc: process ( m_wr_st_reg, spi_wren_reg_m, spi_di_reg_m, spi_di_req_m, spi_wr_ack_m, 
                                 spi_ssel_reg, spi_rst_reg, sw_data, sw_reg, new_switch, btn_data, btn_reg, 
-                                new_button) is
+                                new_button, clear) is
     begin
         spi_rst_next <= spi_rst_reg;
         spi_di_next_m <= spi_di_reg_m;
@@ -385,7 +392,7 @@ begin
                     m_wr_st_next <= st_send_spi_data_sw;
                 elsif new_button = '1' then
                     btn_next <= btn_data;                   -- load new button data (end the mismatch condition)
-                    if btn_data(btUP) = '0' then
+                    if clear = '0' then
                         if btn_data(btDOWN) = '1' then
                             m_wr_st_next <= st_send_spi_data_sw;
                         elsif btn_data(btLEFT) = '1' then
@@ -453,7 +460,7 @@ begin
     end process fsm_m_wr_combi_proc;
 
     -- slave port fsm state and combinatorial logic
-    fsm_s_wr_combi_proc: process (  s_wr_st_reg, spi_di_req_s, spi_wr_ack_s, 
+    fsm_s_wr_combi_proc: process (  s_wr_st_reg, spi_di_req_s, spi_wr_ack_s, spi_do_valid_s,
                                     spi_di_reg_s, spi_wren_reg_s, spi_ssel_reg) is
     begin
         spi_wren_next_s <= spi_wren_reg_s;
@@ -473,9 +480,9 @@ begin
 
             when st_wait_spi_di_req_2 =>
                 if spi_di_req_s = '1' then
-                    spi_di_next_s <= X"D2";
-                    spi_wren_next_s <= '1';
-                    s_wr_st_next <= st_wait_spi_ack_2;
+--                    spi_di_next_s <= X"D2";               -- do not write on this cycle (cycle miss)
+--                    spi_wren_next_s <= '1';
+                    s_wr_st_next <= st_wait_spi_do_valid_1;
                 end if;
         
             when st_wait_spi_ack_2 =>                       -- the actual write happens on this state
@@ -484,6 +491,11 @@ begin
                     s_wr_st_next <= st_wait_spi_di_req_3;
                 end if;
                 
+            when st_wait_spi_do_valid_1 =>
+                if spi_do_valid_s = '1' then
+                    s_wr_st_next <= st_wait_spi_di_req_3;
+                end if;
+
             when st_wait_spi_di_req_3 =>
                 if spi_di_req_s = '1' then
                     spi_di_next_s <= X"D3";
@@ -595,11 +607,17 @@ begin
     dbg(10) <= spi_wr_ack_m;
     dbg(9)  <= spi_di_req_m;
     dbg(8)  <= spi_do_valid_m;
+--    dbg(11 downto 8) <= spi_state_s;
     -- slave signals mapped on dbg
     dbg(7)  <= spi_wren_reg_s;
     dbg(6)  <= spi_wr_ack_s;
     dbg(5)  <= spi_di_req_s;
     dbg(4)  <= spi_do_valid_s;
+    -- specific ports to test on testbench
+    s_do_o <= spi_do_s;
+    m_do_o <= spi_do_m;
+    m_state_o <= spi_state_m;  -- master spi fsm state
+    s_state_o <= spi_state_s;  -- slave spi fsm state
 
 end behavioral;
 

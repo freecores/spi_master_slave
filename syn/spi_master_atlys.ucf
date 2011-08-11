@@ -206,14 +206,14 @@
 # NET "AUDRST"   LOC = "T17"; # Bank = 1, Pin name = IO_L51P_M1DQ12,      Sch name = AUD-RESET
  
 # PMOD Connector
-# NET "spi_ssel_o"   LOC = "T3"; # Bank = 2,  Pin name = IO_L62N_D6,     PMOD JB<1>,  Sch name = JA-D0_N
-# NET "spi_sck_o"    LOC = "R3"; # Bank = 2,  Pin name = IO_L62P_D5,     PMOD JB<2>,  Sch name = JA-D0_P
-# NET "spi_mosi_o"   LOC = "P6"; # Bank = 2,  Pin name = IO_L64N_D9,     PMOD JB<3>,  Sch name = JA-D2_N
-# NET "dbg_o<0>"     LOC = "N5"; # Bank = 2,  Pin name = IO_L64P_D8,     PMOD JB<4>,  Sch name = JA-D2_P
-# NET "dbg_o<1>"     LOC = "V9"; # Bank = 2,  Pin name = IO_L32N_GCLK28, PMOD JB<7>,  Sch name = JA-CLK_N
-# NET "dbg_o<2>"     LOC = "T9"; # Bank = 2,  Pin name = IO_L32P_GCLK29, PMOD JB<8>,  Sch name = JA-CLK_P
-# NET "dbg_o<3>"     LOC = "V4"; # Bank = 2,  Pin name = IO_L63N,        PMOD JB<9>,  Sch name = JA-D1_N
-# NET "dbg_o<4>"     LOC = "T4"; # Bank = 2,  Pin name = IO_L63P,        PMOD JB<10>, Sch name = JA-D1_P
+ NET "m_state_o<0>"     LOC = "T3"; # Bank = 2,  Pin name = IO_L62N_D6,     PMOD JB<1>,  Sch name = JA-D0_N
+ NET "m_state_o<1>"     LOC = "R3"; # Bank = 2,  Pin name = IO_L62P_D5,     PMOD JB<2>,  Sch name = JA-D0_P
+ NET "m_state_o<2>"     LOC = "P6"; # Bank = 2,  Pin name = IO_L64N_D9,     PMOD JB<3>,  Sch name = JA-D2_N
+ NET "m_state_o<3>"     LOC = "N5"; # Bank = 2,  Pin name = IO_L64P_D8,     PMOD JB<4>,  Sch name = JA-D2_P
+# NET "s_state_o<0>"     LOC = "V9"; # Bank = 2,  Pin name = IO_L32N_GCLK28, PMOD JB<7>,  Sch name = JA-CLK_N
+# NET "s_state_o<1>"     LOC = "T9"; # Bank = 2,  Pin name = IO_L32P_GCLK29, PMOD JB<8>,  Sch name = JA-CLK_P
+# NET "s_state_o<2>"     LOC = "V4"; # Bank = 2,  Pin name = IO_L63N,        PMOD JB<9>,  Sch name = JA-D1_N
+# NET "s_state_o<3>"     LOC = "T4"; # Bank = 2,  Pin name = IO_L63P,        PMOD JB<10>, Sch name = JA-D1_P
 
 # onboard VHDCI
 # Channnel 1 connects to P signals, Channel 2 to N signals

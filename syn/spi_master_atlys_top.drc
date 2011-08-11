@@ -1,0 +1,8 @@
+Release 13.1 Drc O.40d (nt)
+Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+
+Wed Aug 10 22:59:10 2011
+
+drc -z spi_master_atlys_top.ncd spi_master_atlys_top.pcf
+
+DRC detected 0 errors and 0 warnings.
