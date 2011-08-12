@@ -109,17 +109,9 @@
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.lso"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ngc"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ngr"/>
-      <outfile xil_pn:name="spi_master_atlys_top.prj"/>
-      <outfile xil_pn:name="spi_master_atlys_top.stx"/>
+      <status xil_pn:value="OutputRemoved"/>
       <outfile xil_pn:name="spi_master_atlys_top.syr"/>
       <outfile xil_pn:name="spi_master_atlys_top.xst"/>
-      <outfile xil_pn:name="spi_master_atlys_top_xst.xrpt"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-      <outfile xil_pn:name="xst"/>
     </transform>
     <transform xil_pn:end_ts="1313027782" xil_pn:in_ck="-6344801126424831697" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-4068456177828066131" xil_pn:start_ts="1313027782">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -127,62 +119,50 @@
     </transform>
     <transform xil_pn:end_ts="1313027787" xil_pn:in_ck="-2449764723691034422" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-177710677611610831" xil_pn:start_ts="1313027782">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_ngo"/>
-      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.bld"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ngd"/>
-      <outfile xil_pn:name="spi_master_atlys_top_ngdbuild.xrpt"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1313027810" xil_pn:in_ck="-2449764723691034421" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="-1658770934691434356" xil_pn:start_ts="1313027787">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.pcf"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.map"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.mrp"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.ncd"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.ngm"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.psr"/>
-      <outfile xil_pn:name="spi_master_atlys_top_map.xrpt"/>
-      <outfile xil_pn:name="spi_master_atlys_top_summary.xml"/>
-      <outfile xil_pn:name="spi_master_atlys_top_usage.xml"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1313027829" xil_pn:in_ck="5633518429974504804" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="7846039340612803429" xil_pn:start_ts="1313027810">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ncd"/>
-      <outfile xil_pn:name="spi_master_atlys_top.pad"/>
-      <outfile xil_pn:name="spi_master_atlys_top.par"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ptwx"/>
-      <outfile xil_pn:name="spi_master_atlys_top.unroutes"/>
-      <outfile xil_pn:name="spi_master_atlys_top.xpi"/>
-      <outfile xil_pn:name="spi_master_atlys_top_pad.csv"/>
-      <outfile xil_pn:name="spi_master_atlys_top_pad.txt"/>
-      <outfile xil_pn:name="spi_master_atlys_top_par.xrpt"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1313027964" xil_pn:in_ck="-5988982649231273448" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="7135157351517842893" xil_pn:start_ts="1313027946">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.bgn"/>
-      <outfile xil_pn:name="spi_master_atlys_top.bit"/>
-      <outfile xil_pn:name="spi_master_atlys_top.drc"/>
-      <outfile xil_pn:name="spi_master_atlys_top.ut"/>
-      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
-      <outfile xil_pn:name="webtalk.log"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1313027829" xil_pn:in_ck="-2449764723691034553" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1313027823">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
-      <outfile xil_pn:name="spi_master_atlys_top.twr"/>
-      <outfile xil_pn:name="spi_master_atlys_top.twx"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
   </transforms>
 
