@@ -1,14 +1,8 @@
 //! **************************************************************************
-// Written by: Map O.40d on Wed Aug 10 22:56:48 2011
+// Written by: Map O.40d on Mon Aug 29 00:08:35 2011
 //! **************************************************************************
 
 SCHEMATIC START;
-COMP "dbg_o<10>" LOCATE = SITE "V13" LEVEL 1;
-COMP "dbg_o<11>" LOCATE = SITE "U13" LEVEL 1;
-COMP "spi_miso_o" LOCATE = SITE "V15" LEVEL 1;
-COMP "spi_mosi_o" LOCATE = SITE "U15" LEVEL 1;
-COMP "sw_i<0>" LOCATE = SITE "A10" LEVEL 1;
-COMP "sw_i<1>" LOCATE = SITE "D14" LEVEL 1;
 COMP "sw_i<2>" LOCATE = SITE "C14" LEVEL 1;
 COMP "sw_i<3>" LOCATE = SITE "P15" LEVEL 1;
 COMP "sw_i<4>" LOCATE = SITE "P12" LEVEL 1;
@@ -46,5 +40,15 @@ COMP "led_o<6>" LOCATE = SITE "P16" LEVEL 1;
 COMP "led_o<7>" LOCATE = SITE "N12" LEVEL 1;
 COMP "gclk_i" LOCATE = SITE "L15" LEVEL 1;
 COMP "spi_sck_o" LOCATE = SITE "V16" LEVEL 1;
+COMP "s_state_o<0>" LOCATE = SITE "V9" LEVEL 1;
+COMP "s_state_o<1>" LOCATE = SITE "T9" LEVEL 1;
+COMP "s_state_o<2>" LOCATE = SITE "V4" LEVEL 1;
+COMP "s_state_o<3>" LOCATE = SITE "T4" LEVEL 1;
+COMP "dbg_o<10>" LOCATE = SITE "V13" LEVEL 1;
+COMP "dbg_o<11>" LOCATE = SITE "U13" LEVEL 1;
+COMP "spi_miso_o" LOCATE = SITE "V15" LEVEL 1;
+COMP "spi_mosi_o" LOCATE = SITE "U15" LEVEL 1;
+COMP "sw_i<0>" LOCATE = SITE "A10" LEVEL 1;
+COMP "sw_i<1>" LOCATE = SITE "D14" LEVEL 1;
 SCHEMATIC END;
 

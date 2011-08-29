@@ -127,8 +127,9 @@
 --                                  data, the last data word is repeated.
 -- 2011/08/08   v2.02.0123  [JD]    ISSUE: continuous transfer mode bug, for ignored 'di_req' cycles. Instead of repeating the last data word, 
 --                                  the slave will send (others => '0') instead.
+-- 2011/08/28   v2.02.0126  [JD]    ISSUE: the miso_o MUX that preloads tx_bit when slave is desselected will glitch for CPHA='1'.
+--                                  FIX: added a registered drive for the MUX select that will transfer the tx_reg only after the first tx_reg update.
 --
---                                                                   
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
 --  ====
@@ -174,6 +175,8 @@ end spi_slave;
 -- circuitry. 
 -- The same is valid for the transmit and receive ports. If the receive ports are not mapped, the
 -- synthesis tool will remove the receive logic from the generated circuitry.
+-- Alternatively, you can remove these ports and related circuitry once the core is verified and
+-- integrated to your circuit.
 --================================================================================================================
 
 architecture rtl of spi_slave is
@@ -188,7 +191,7 @@ architecture rtl of spi_slave is
     --      especially for the Spartan-6 and newer CLB architectures, where a local reset can
     --      reduce the usability of the slice registers, due to the need to share the control
     --      set (RESET/PRESET, CLOCK ENABLE and CLOCK) by all 8 registers in a slice.
-    --      By using GSR for the initialization, and reducing RESET local init to the bare
+    --      By using GSR for the initialization, and reducing RESET local init to the really
     --      essential, the model achieves better LUT/FF packing and CLB usability.
     ------------------------------------------------------------------------------------------
     -- internal state signals for register and combinatorial stages
@@ -198,9 +201,10 @@ architecture rtl of spi_slave is
     signal sh_next : std_logic_vector (N-1 downto 0);
     signal sh_reg : std_logic_vector (N-1 downto 0);
     -- mosi and miso connections
-    signal rx_bit_next : std_logic;
+    signal rx_bit_next : std_logic;                         -- sample of MOSI input
     signal tx_bit_next : std_logic;
-    signal tx_bit_reg : std_logic;
+    signal tx_bit_reg : std_logic;                          -- drives MISO during sequential logic
+    signal preload_miso : std_logic;                        -- controls the MISO MUX
     -- buffered di_i data signals for register and combinatorial stages
     signal di_reg : std_logic_vector (N-1 downto 0);
     -- internal wren_i stretcher for fsm combinatorial stage
@@ -308,12 +312,14 @@ begin
     core_reg_proc : process (spi_sck_i, spi_ssel_i) is
     begin
         -- FFD registers clocked on SHIFT edge and cleared on idle (spi_ssel_i = 1)
+        -- state fsm register (fdr)
         if spi_ssel_i = '1' then                                -- async clr
             state_reg <= 0;                                     -- state falls back to idle when slave not selected
-        elsif spi_sck_i'event and spi_sck_i = SHIFT_EDGE then   -- on SHIFT edge, update all core registers
+        elsif spi_sck_i'event and spi_sck_i = SHIFT_EDGE then   -- on SHIFT edge, update state register
             state_reg <= state_next;                            -- core fsm changes state with spi SHIFT clock
         end if;
         -- FFD registers clocked on SHIFT edge
+        -- rtl core registers (fd)
         if spi_sck_i'event and spi_sck_i = SHIFT_EDGE then      -- on fsm state change, update all core registers
             sh_reg <= sh_next;                                  -- core shift register
             do_buffer_reg <= do_buffer_next;                    -- registered data output
@@ -321,7 +327,15 @@ begin
             di_req_reg <= di_req_next;                          -- input data request
             wr_ack_reg <= wr_ack_next;                          -- wren ack for data load synchronization
         end if;
+        -- FFD registers clocked on CHANGE edge and cleared on idle (spi_ssel_i = 1)
+        -- miso MUX preload control register (fdp)
+        if spi_ssel_i = '1' then                                -- async preset
+            preload_miso <= '1';                                -- miso MUX sees top bit of parallel input when slave not selected
+        elsif spi_sck_i'event and spi_sck_i = CHANGE_EDGE then  -- on CHANGE edge, change to tx_reg output
+            preload_miso <= spi_ssel_i;                         -- miso MUX sees tx_bit_reg when it is driven by SCK
+        end if;
         -- FFD registers clocked on CHANGE edge
+        -- tx_bit register (fd)
         if spi_sck_i'event and spi_sck_i = CHANGE_EDGE then
             tx_bit_reg <= tx_bit_next;                          -- update MISO driver from the MSb
         end if;
@@ -418,16 +432,16 @@ begin
     wr_ack_o_proc:      wr_ack_o <= wr_ack_reg;                         -- copy registered wr_ack_o to output
 
     -----------------------------------------------------------------------------------------------
-    -- MISO driver process: copy next tx bit at reset
+    -- MISO driver process: preload top bit of parallel data to MOSI at reset
     -----------------------------------------------------------------------------------------------
     -- this is a MUX that selects the combinatorial next tx bit at reset, and the registered tx bit
     -- at sequential operation. The mux gives us a preload of the first bit, simplifying the shifter logic.
-    spi_miso_o_proc: process (spi_ssel_i, tx_bit_reg, tx_bit_next) is 
+    spi_miso_o_proc: process (preload_miso, tx_bit_reg, di_reg) is 
     begin
-        if spi_ssel_i = '1' then
-            spi_miso_o <= tx_bit_next;                                  -- copy next => reg at reset
+        if preload_miso = '1' then
+            spi_miso_o <= di_reg(N-1);                                  -- copy top bit of parallel data at reset
         else
-            spi_miso_o <= tx_bit_reg;
+            spi_miso_o <= tx_bit_reg;                                   -- copy top bit of shifter at sequential operation
         end if;
     end process spi_miso_o_proc;
 

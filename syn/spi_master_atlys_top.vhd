@@ -37,29 +37,36 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
 entity spi_master_atlys_top is
+    Generic (   
+        N : positive := 8;                              -- 8bit serial word length is default
+        CPOL : std_logic := '0';                        -- SPI mode selection (mode 0 default)
+        CPHA : std_logic := '0';                        -- CPOL = clock polarity, CPHA = clock phase.
+        PREFETCH : positive := 3;                       -- prefetch lookahead cycles
+        CLK_PERIOD : time := 10 ns;                     -- clock period for gclk_i (default 100MHz)
+        DEBOUNCE_TIME : time := 200 us);                -- switch debounce time (use 200 us for silicon, 2 us for simulation)
     Port (
-        gclk_i : in std_logic := 'X';                           -- board clock input 100MHz
+        gclk_i : in std_logic := 'X';                   -- board clock input 100MHz
         --- SPI interface ---           
-        spi_ssel_o : out std_logic;                             -- spi port SSEL
-        spi_sck_o : out std_logic;                              -- spi port SCK
-        spi_mosi_o : out std_logic;                             -- spi port MOSI
-        spi_miso_o : out std_logic;                             -- spi port MISO
+        spi_ssel_o : out std_logic;                     -- spi port SSEL
+        spi_sck_o : out std_logic;                      -- spi port SCK
+        spi_mosi_o : out std_logic;                     -- spi port MOSI
+        spi_miso_o : out std_logic;                     -- spi port MISO
         --- input slide switches ---            
-        sw_i : in std_logic_vector (7 downto 0);                -- 8 input slide switches
+        sw_i : in std_logic_vector (7 downto 0);        -- 8 input slide switches
         --- input buttons ---           
-        btn_i : in std_logic_vector (5 downto 0);               -- 6 input push buttons
+        btn_i : in std_logic_vector (5 downto 0);       -- 6 input push buttons
         --- output LEDs ----            
-        led_o : out std_logic_vector (7 downto 0);              -- output leds
+        led_o : out std_logic_vector (7 downto 0);      -- output leds
         --- debug outputs ---
         s_do_o : out std_logic_vector (7 downto 0);
         m_do_o : out std_logic_vector (7 downto 0);
-        m_state_o : out std_logic_vector (3 downto 0);          -- master spi fsm state
-        s_state_o : out std_logic_vector (3 downto 0);          -- slave spi fsm state
-        dbg_o : out std_logic_vector (11 downto 0)              -- 12 generic debug pins
+        m_state_o : out std_logic_vector (3 downto 0);  -- master spi fsm state
+        s_state_o : out std_logic_vector (3 downto 0);  -- slave spi fsm state
+        dbg_o : out std_logic_vector (11 downto 0)      -- 12 generic debug pins
     );                      
 end spi_master_atlys_top;
 
-architecture behavioral of spi_master_atlys_top is
+architecture rtl of spi_master_atlys_top is
 
     --=============================================================================================
     -- Constants
@@ -69,10 +76,6 @@ architecture behavioral of spi_master_atlys_top is
     constant FSM_CE_DIV         : integer := 1;     -- fsm operates at 100MHz
     constant SPI_2X_CLK_DIV     : integer := 1;     -- 50MHz SPI clock
     constant SAMP_CE_DIV        : integer := 1;     -- board signals sampled at 100MHz
-    -- spi port generics
-    constant N      : integer   := 8;               -- 8 bits
-    constant CPOL   : std_logic := '0';
-    constant CPHA   : std_logic := '0';
     
     -- button definitions
     constant btRESET    : integer := 0;             -- these are constants to use as btn_i(x)
@@ -179,7 +182,7 @@ begin
     --=============================================================================================
     -- spi master port: data and control signals driven by the master fsm
     Inst_spi_master_port: entity work.spi_master(rtl) 
-        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => 3, SPI_2X_CLK_DIV => SPI_2X_CLK_DIV)
+        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH, SPI_2X_CLK_DIV => SPI_2X_CLK_DIV)
         port map( 
             sclk_i => gclk_i,                   -- system clock is used for serial and parallel ports
             pclk_i => gclk_i,
@@ -200,7 +203,7 @@ begin
 
     -- spi slave port: data and control signals driven by the slave fsm
     Inst_spi_slave_port: entity work.spi_slave(rtl) 
-        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => 3)
+        generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH)
         port map( 
             clk_i => gclk_i,
             spi_ssel_i => spi_ssel,             -- driven by the spi master
@@ -219,7 +222,7 @@ begin
 
     -- debounce for the input switches, with new data strobe output
     Inst_sw_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 8, CNT_VAL => 200)  -- debounce 8 inputs with 200 us settling time
+        generic map (N => 8, CNT_VAL => DEBOUNCE_TIME / CLK_PERIOD) -- debounce 8 inputs with selected settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => sw_i,                     -- noisy input data
@@ -228,7 +231,7 @@ begin
 
     -- debounce for the input pushbuttons, with new data strobe output
     Inst_btn_debouncer: entity work.grp_debouncer(rtl)
-        generic map (N => 6, CNT_VAL => 200)  -- debounce 6 inputs with 200 us settling time
+        generic map (N => 6, CNT_VAL => DEBOUNCE_TIME / CLK_PERIOD) -- debounce 6 inputs with selected settling time
         port map(  
             clk_i => gclk_i,                    -- system clock
             data_i => btn_i,                    -- noisy input data
@@ -356,12 +359,12 @@ begin
     --  COMBINATORIAL NEXT-STATE LOGIC PROCESSES
     --=============================================================================================
     -- edge detector for new switch data
-    new_switch_proc: new_switch <= '1' when sw_data /= sw_reg else '0';     -- '1' for edge
+    new_switch_proc: new_switch <= '1' when sw_data /= sw_reg else '0';     -- '1' for change edge
 
     -- edge detector for new button data
-    new_button_proc: new_button <= '1' when btn_data /= btn_reg else '0';   -- '1' for edge
+    new_button_proc: new_button <= '1' when btn_data /= btn_reg else '0';   -- '1' for change edge
 
-    -- master port fsm state and combinatorial logic
+    -- master port write fsmd logic
     fsm_m_wr_combi_proc: process ( m_wr_st_reg, spi_wren_reg_m, spi_di_reg_m, spi_di_req_m, spi_wr_ack_m, 
                                 spi_ssel_reg, spi_rst_reg, sw_data, sw_reg, new_switch, btn_data, btn_reg, 
                                 new_button, clear) is
@@ -459,7 +462,7 @@ begin
         end case; 
     end process fsm_m_wr_combi_proc;
 
-    -- slave port fsm state and combinatorial logic
+    -- slave port write fsmd logic
     fsm_s_wr_combi_proc: process (  s_wr_st_reg, spi_di_req_s, spi_wr_ack_s, spi_do_valid_s,
                                     spi_di_reg_s, spi_wren_reg_s, spi_ssel_reg) is
     begin
@@ -468,7 +471,7 @@ begin
         s_wr_st_next <= s_wr_st_reg;
         case s_wr_st_reg is
             when st_reset =>
-                spi_di_next_s <= X"D1";                     -- write first data word
+                spi_di_next_s <= X"51";                     -- write first data word
                 spi_wren_next_s <= '1';                     -- set write enable
                 s_wr_st_next <= st_wait_spi_start;
                 
@@ -482,6 +485,7 @@ begin
                 if spi_di_req_s = '1' then
 --                    spi_di_next_s <= X"D2";               -- do not write on this cycle (cycle miss)
 --                    spi_wren_next_s <= '1';
+--                    s_wr_st_next <= st_wait_spi_ack_2;
                     s_wr_st_next <= st_wait_spi_do_valid_1;
                 end if;
         
@@ -520,7 +524,7 @@ begin
         end case; 
     end process fsm_s_wr_combi_proc;
 
-    -- slave port fsm state and combinatorial logic
+    -- slave port read fsmd logic
     fsm_s_rd_combi_proc: process ( s_rd_st_reg, spi_do_valid_s, spi_do_s, s_do_1_reg, s_do_2_reg, s_do_3_reg) is
     begin
         s_do_1_next <= s_do_1_reg;
@@ -607,17 +611,17 @@ begin
     dbg(10) <= spi_wr_ack_m;
     dbg(9)  <= spi_di_req_m;
     dbg(8)  <= spi_do_valid_m;
---    dbg(11 downto 8) <= spi_state_s;
     -- slave signals mapped on dbg
     dbg(7)  <= spi_wren_reg_s;
     dbg(6)  <= spi_wr_ack_s;
     dbg(5)  <= spi_di_req_s;
     dbg(4)  <= spi_do_valid_s;
+    dbg(3 downto 0) <= spi_state_s;
     -- specific ports to test on testbench
     s_do_o <= spi_do_s;
     m_do_o <= spi_do_m;
     m_state_o <= spi_state_m;  -- master spi fsm state
     s_state_o <= spi_state_s;  -- slave spi fsm state
 
-end behavioral;
+end rtl;
 

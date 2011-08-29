@@ -16,6 +16,7 @@
 
   <files>
     <file xil_pn:name="spi_master_atlys_top.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="4"/>
     </file>
     <file xil_pn:name="spi_master.vhd" xil_pn:type="FILE_VHDL">
@@ -31,7 +32,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
     </file>
     <file xil_pn:name="spi_master_atlys_test.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="67"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="2"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="2"/>
@@ -154,7 +155,7 @@
     <property xil_pn:name="Global Tristate Port Name" xil_pn:value="GTS_PORT" xil_pn:valueState="default"/>
     <property xil_pn:name="HDL Instantiation Template Target Language" xil_pn:value="VHDL" xil_pn:valueState="default"/>
     <property xil_pn:name="Hierarchy Separator" xil_pn:value="/" xil_pn:valueState="default"/>
-    <property xil_pn:name="ISim UUT Instance Name" xil_pn:value="inst_spi_master_atlys_top" xil_pn:valueState="default"/>
+    <property xil_pn:name="ISim UUT Instance Name" xil_pn:value="Inst_spi_master_atlys_top" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|spi_master_atlys_top|behavioral" xil_pn:valueState="non-default"/>
@@ -289,7 +290,7 @@
     <property xil_pn:name="Selected Simulation Root Source Node Post-Map" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Selected Simulation Root Source Node Post-Route" xil_pn:value="work.testbench" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Selected Simulation Root Source Node Post-Translate" xil_pn:value="work.testbench" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Selected Simulation Source Node" xil_pn:value="inst_spi_master_atlys_top" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Selected Simulation Source Node" xil_pn:value="Inst_spi_master_atlys_top" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Set SPI Configuration Bus Width spartan6" xil_pn:value="1" xil_pn:valueState="default"/>
     <property xil_pn:name="Setup External Master Clock Division spartan6" xil_pn:value="1" xil_pn:valueState="default"/>
     <property xil_pn:name="Shift Register Extraction" xil_pn:value="false" xil_pn:valueState="non-default"/>

@@ -91,22 +91,23 @@ begin
     --      connects to 4 spi signals
     --      connects to 8 board LEDs
     --      connects to 12 debug pins
-	inst_spi_master_atlys_top: spi_master_atlys_top 
-    port map(
-        gclk_i => sysclk,
-        spi_ssel_o => spi_ssel,
-        spi_sck_o => spi_sck,
-        spi_mosi_o => spi_mosi,
-        spi_miso_o => spi_miso,
-        sw_i => sw_data,
-        btn_i => btn_data,
-        led_o => leds,
-        m_do_o => m_do_reg,
-        s_do_o => s_do_reg,
-        m_state_o => master_state,
-        s_state_o => slave_state,
-        dbg_o => dbg
-	);
+    --      set debounce time to 2 us to save simulation time
+	Inst_spi_master_atlys_top: spi_master_atlys_top
+        port map(
+            gclk_i => sysclk,
+            spi_ssel_o => spi_ssel,
+            spi_sck_o => spi_sck,
+            spi_mosi_o => spi_mosi,
+            spi_miso_o => spi_miso,
+            sw_i => sw_data,
+            btn_i => btn_data,
+            led_o => leds,
+            m_do_o => m_do_reg,
+            s_do_o => s_do_reg,
+            m_state_o => master_state,
+            s_state_o => slave_state,
+            dbg_o => dbg
+        );
 
     -- master signals mapped on dbg
     wren_m      <= dbg(11);
@@ -144,7 +145,7 @@ begin
         btn_data(btUP) <= '0';
         sw_data <= X"81";
         wait for 5 us;
-        sw_data <= X"C1";
+        sw_data <= X"65";
         wait for 5 us;
         sw_data <= X"C9";
         wait for 5 us;
