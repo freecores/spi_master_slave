@@ -90,10 +90,10 @@
 --                                                                   
 --      This file is part of the SPI MASTER/SLAVE INTERFACE project http://opencores.org/project,spi_master_slave
 --                                                                   
---      Author(s):      Jonny Doin, jdoin@opencores.org
+--      Author(s):      Jonny Doin, jdoin@opencores.org, jonnydoin@gmail.com
 --                                                                   
---      Copyright (C) 2011 Authors and OPENCORES.ORG
---      --------------------------------------------
+--      Copyright (C) 2011 Jonny Doin
+--      -----------------------------
 --                                                                   
 --      This source file may be used and distributed without restriction provided that this copyright statement is not    
 --      removed from the file and that any derivative work contains the original copyright notice and the associated 
@@ -108,7 +108,7 @@
 --      details.
 --
 --      You should have received a copy of the GNU Lesser General Public License along with this source; if not, download 
---      it from http://www.opencores.org/lgpl.shtml
+--      it from http://www.gnu.org/licenses/lgpl.txt
 --                                                                   
 ------------------------------ REVISION HISTORY -----------------------------------------------------------------------
 --

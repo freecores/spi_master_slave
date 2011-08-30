@@ -31,6 +31,12 @@ SILICON VERIFICATION
 
 Design verification in silicon was done in a Digilent Atlys board, and the verification project can be found at the  \trunk\syn directory, with all the required files to replicate the verification tests, including pinlock constraints for the Atlys board.
 
+LICENSING
+---------
+
+This work is licensed as a LGPL work. If you find this licensing too restrictive for hardware, or it is not adequate for you, please get in touch with me and we can arrange a more suitable open source hardware licensing.
+
+
 
 If you have any questions or usage issues with this core, please open a thread in OpenCores forum, and I will be pleased to answer.
 

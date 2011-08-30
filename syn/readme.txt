@@ -24,6 +24,12 @@ ATLYS_0x.SET                    Tek MSO2014 settings files with the debug pin na
 spi_master_atlys_top_bit.zip    bitgen file to program the Atlys board
 
 
+LICENSING
+---------
+
+This work is licensed as a LGPL work. If you find this licensing too restrictive for hardware, or it is not adequate for you, please get in touch with me and we can arrange a more suitable open source hardware licensing.
+
+
 
 If you need assistance on putting this to work, please place a thread in the OpenCores forum, and I will be glad to answer, or send me e-mail: jdoin@opencores.org
 

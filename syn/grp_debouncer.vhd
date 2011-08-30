@@ -40,21 +40,23 @@
 --                              |    |              |                                 |
 --                              |    |              \----------\                      |
 --                              |    |        N                |                      |
---                              |    \--------/-----------\    +----------------------+-----------\
---                              |                         |    |                                  |
---                              \---\                     |    |                                  |
---                     ______       |        ______       |    |   ______                         |
---                     | fd |       |        | fd |       |    |   |fde |                         |
---   [data_i]----/-----|    |---/---+---/----|    |---/---+----)---|    |---/---+---/-------------)----------------------[data_o]
---               N     |    |   N       N    |    |   N   |    |   |    |   N   |   N             |
---                     |    |                |    |       |    \---|CE  |       |                 |
---                     |    |                |    |       |        |    |       |                 |
---   [clk_i]---->      |>   |                |>   |       |        |>   |       |                 |     ____
---                     ------                ------       |        ------       |    N     ____   \-----|   \
---                                                        |                     \----/----))   \        |AND |-----------[strb_o]
---                                                        |                               ))XOR |-------|___/
---                                                        \--------------------------/----))___/
---                                                                                   N
+--                              |    \--------/-----------\    +----------------------+---------\
+--                              |                         |    |                                |
+--                              \---\                     |    |                                |
+--                     ______       |        ______       |    |   ______                       |
+--                     | fd |       |        | fd |       |    |   |fde |                       |
+--   [data_i]----/-----|    |---/---+---/----|    |---/---+----)---|    |---/---+---/-----------)------------------------[data_o]
+--               N     |    |   N       N    |    |   N   |    |   |    |   N   |   N           |
+--                     |    |                |    |       |    \---|CE  |       |               |
+--                     |    |                |    |       |        |    |       |               |
+--   [clk_i]---->      |>   |                |>   |       |        |>   |       |               |   ____       ______
+--                     ------                ------       |        ------       |   N    ____   \---|   \      | fd |
+--                                                        |                     \---/---))   \      |AND |-----|    |----[strb_o]
+--                                                        |                             ))XOR |-----|___/      |    |
+--                                                        \-------------------------/---))___/                 |    |
+--                                                                                   N                         |    |
+--                                                                                                             |>   |
+--                                                                                                             ------
 --
 --
 --      PIPELINE LOGIC
@@ -75,12 +77,12 @@
 --      RESOURCES USED
 --      ==============
 --
---      The number of registers inferred is: 3*N + (LOG(CNT_VAL)/LOG(2)) registers.
+--      The number of registers inferred is: 3*N + (LOG(CNT_VAL)/LOG(2)) + 1 registers.
 --      The number of LUTs inferred is roughly: ((4*N+2)/6)+2.
 --      The slice distribution will vary, and depends on the control set restrictions and LUT-FF pairs resulting from map+p&r.
 --
 --      This design was originally targeted to a Spartan-6 platform, synthesized with XST and normal constraints.
---      Verification in silicon was done on a Digilent Atlys board with a Spartan-6 FPGA @100MHz clk_i.
+--      Verification in silicon was done on a Digilent Atlys board with a Spartan-6 FPGA @100MHz clock.
 --      The VHDL dialect used is VHDL'93, accepted largely by all synthesis tools.
 --
 ------------------------------ COPYRIGHT NOTICE -----------------------------------------------------------------------
@@ -88,8 +90,8 @@
 --                                                                   
 --      Author(s):      Jonny Doin, jdoin@opencores.org, jonnydoin@gmail.com
 --                                                                   
---      Copyright (C) 2011 Authors
---      --------------------------
+--      Copyright (C) 2011 Jonny Doin
+--      -----------------------------
 --                                                                   
 --      This source file may be used and distributed without restriction provided that this copyright statement is not    
 --      removed from the file and that any derivative work contains the original copyright notice and the associated 
@@ -104,12 +106,13 @@
 --      details.
 --
 --      You should have received a copy of the GNU Lesser General Public License along with this source; if not, download 
---      it from http://www.opencores.org/lgpl.shtml
+--      it from http://www.gnu.org/licenses/lgpl.txt
 --                                                                   
 ------------------------------ REVISION HISTORY -----------------------------------------------------------------------
 --
 -- 2011/07/06   v0.01.0010  [JD]    started development. verification of synthesis circuit inference.
 -- 2011/07/07   v1.00.0020  [JD]    verification in silicon. operation at 100MHz, tested on the Atlys board (Spartan-6 LX45).
+-- 2011/08/10   v1.01.0025  [JD]    added one pipeline delay to new data strobe output.
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
@@ -138,6 +141,8 @@ architecture rtl of grp_debouncer is
     signal reg_A, reg_B : std_logic_vector (N-1 downto 0) := (others => '0');   -- debounce edge detectors
     signal reg_out : std_logic_vector (N-1 downto 0) := (others => '0');        -- registered output
     signal dat_strb : std_logic := '0';                                         -- data transfer strobe
+    signal strb_reg : std_logic := '0';                                         -- registered strobe
+    signal strb_next : std_logic := '0';                                        -- lookahead strobe
     signal dat_diff : std_logic := '0';                                         -- edge detector
     -- debounce counter
     signal cnt_reg : integer range CNT_VAL downto 0 := 0;                       -- debounce period counter
@@ -169,11 +174,14 @@ begin
     -- input pipeline logic
     pipeline_proc: process (clk_i) is
     begin
-        -- edge detection pipeline
         if clk_i'event and clk_i = '1' then
+            -- edge detection pipeline
             reg_A <= data_i;
             reg_B <= reg_A;
+            -- new data strobe pipeline delay
+            strb_reg <= strb_next;
         end if;
+        -- output data pipeline
         if clk_i'event and clk_i = '1' then
             if dat_strb = '1' then
                 reg_out <= reg_B;
@@ -182,14 +190,14 @@ begin
     end process pipeline_proc;
     -- edge detector
     edge_detector_proc: dat_diff <= '1' when reg_A /= reg_B else '0';
+    -- lookahead new data strobe
+    next_strobe_proc: strb_next <= '1' when ((reg_out /= reg_B) and dat_strb = '1') else '0';
     
     --=============================================================================================
     -- OUTPUT LOGIC
     --=============================================================================================
-    -- new data strobe detection
-    strb_o_proc:    strb_o <= '1' when ((reg_out /= reg_B) and dat_strb = '1') else '0';
     -- connect output ports
     data_o_proc:    data_o <= reg_out;
-    
+    strb_o_proc:    strb_o <= strb_reg;
 end rtl;
 
