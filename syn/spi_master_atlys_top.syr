@@ -104,23 +104,23 @@ Slice Utilization Ratio Delta      : 5
 =========================================================================
 *                          HDL Parsing                                  *
 =========================================================================
-Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_slave.vhd" into library work
+Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_slave.vhd" into library work
 Parsing entity <spi_slave>.
 Parsing architecture <rtl> of entity <spi_slave>.
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 361: Case choice must be a locally static expression
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 369: Case choice must be a locally static expression
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 378: Case choice must be a locally static expression
-Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master.vhd" into library work
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 361: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 369: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_slave.vhd" Line 378: Case choice must be a locally static expression
+Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master.vhd" into library work
 Parsing entity <spi_master>.
 Parsing architecture <rtl> of entity <spi_master>.
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master.vhd" Line 505: Case choice must be a locally static expression
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master.vhd" Line 513: Case choice must be a locally static expression
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master.vhd" Line 521: Case choice must be a locally static expression
-WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master.vhd" Line 530: Case choice must be a locally static expression
-Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\grp_debouncer.vhd" into library work
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master.vhd" Line 505: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master.vhd" Line 513: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master.vhd" Line 521: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master.vhd" Line 530: Case choice must be a locally static expression
+Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\grp_debouncer.vhd" into library work
 Parsing entity <grp_debouncer>.
 Parsing architecture <rtl> of entity <grp_debouncer>.
-Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" into library work
+Parsing VHDL file "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" into library work
 Parsing entity <spi_master_atlys_top>.
 Parsing architecture <rtl> of entity <spi_master_atlys_top>.
 
@@ -137,36 +137,36 @@ Elaborating entity <spi_slave> (architecture <rtl>) with generics from library <
 Elaborating entity <grp_debouncer> (architecture <rtl>) with generics from library <work>.
 
 Elaborating entity <grp_debouncer> (architecture <rtl>) with generics from library <work>.
-INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 459. Case statement is complete. others clause is never selected
-INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 521. Case statement is complete. others clause is never selected
-INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spimasterslave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 571. Case statement is complete. others clause is never selected
+INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 460. Case statement is complete. others clause is never selected
+INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 522. Case statement is complete. others clause is never selected
+INFO:HDLCompiler:679 - "C:\dropbox\Dropbox\VHDL_training\OpenCores\spi_master_slave\spi_master_slave\trunk\syn\spi_master_atlys_top.vhd" Line 572. Case statement is complete. others clause is never selected
 
 =========================================================================
 *                           HDL Synthesis                               *
 =========================================================================
 
 Synthesizing Unit <spi_master_atlys_top>.
-    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd".
+    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd".
         N = 8
         CPOL = '0'
         CPHA = '0'
         PREFETCH = 3
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <sh_reg_dbg_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <sck_ena_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <sck_ena_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <do_transfer_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <wren_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <rx_bit_reg_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <core_clk_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <core_n_clk_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <core_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 184: Output port <core_n_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 205: Output port <sh_reg_dbg_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 205: Output port <do_transfer_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 205: Output port <wren_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 205: Output port <rx_bit_next_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 224: Output port <strb_o> of the instance <Inst_sw_debouncer> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 233: Output port <strb_o> of the instance <Inst_btn_debouncer> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <sh_reg_dbg_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <sck_ena_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <sck_ena_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <do_transfer_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <wren_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <rx_bit_reg_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <core_clk_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <core_n_clk_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <core_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 185: Output port <core_n_ce_o> of the instance <Inst_spi_master_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 206: Output port <sh_reg_dbg_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 206: Output port <do_transfer_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 206: Output port <wren_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 206: Output port <rx_bit_next_o> of the instance <Inst_spi_slave_port> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 225: Output port <strb_o> of the instance <Inst_sw_debouncer> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master_atlys_top.vhd" line 234: Output port <strb_o> of the instance <Inst_btn_debouncer> is unconnected or connected to loadless signal.
     Found 1-bit register for signal <samp_ce_gen_proc.clk_cnt>.
     Found 1-bit register for signal <fsm_ce>.
     Found 1-bit register for signal <fsm_ce_gen_proc.clk_cnt>.
@@ -193,7 +193,7 @@ INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_m
     | Transitions        | 20                                             |
     | Inputs             | 2                                              |
     | Outputs            | 3                                              |
-    | Clock              | gclk_i (rising_edge)                           |
+    | Clock              | pclk_i (rising_edge)                           |
     | Reset              | spi_ssel_o (positive)                          |
     | Reset type         | synchronous                                    |
     | Reset State        | st_reset                                       |
@@ -207,7 +207,7 @@ INFO:Xst:3210 - "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_m
     | Transitions        | 36                                             |
     | Inputs             | 11                                             |
     | Outputs            | 10                                             |
-    | Clock              | gclk_i (rising_edge)                           |
+    | Clock              | pclk_i (rising_edge)                           |
     | Reset              | clear (positive)                               |
     | Reset type         | synchronous                                    |
     | Reset State        | st_reset                                       |
@@ -222,7 +222,7 @@ INFO:Xst:1799 - State st_wait_spi_ack_2 is never reached in FSM <s_wr_st_reg>.
     | Transitions        | 20                                             |
     | Inputs             | 5                                              |
     | Outputs            | 9                                              |
-    | Clock              | gclk_i (rising_edge)                           |
+    | Clock              | pclk_i (rising_edge)                           |
     | Reset              | spi_ssel_o (positive)                          |
     | Reset type         | synchronous                                    |
     | Reset State        | st_reset                                       |
@@ -230,10 +230,10 @@ INFO:Xst:1799 - State st_wait_spi_ack_2 is never reached in FSM <s_wr_st_reg>.
     | Encoding           | Gray                                           |
     | Implementation     | LUT                                            |
     -----------------------------------------------------------------------
-    Found 1-bit adder for signal <samp_ce_gen_proc.clk_cnt[0]_PWR_4_o_add_1_OUT<0>> created at line 276.
-    Found 1-bit adder for signal <fsm_ce_gen_proc.clk_cnt[0]_PWR_4_o_add_3_OUT<0>> created at line 290.
-    Found 8-bit comparator equal for signal <_n0380> created at line 362
-    Found 6-bit comparator equal for signal <_n0400> created at line 365
+    Found 1-bit adder for signal <samp_ce_gen_proc.clk_cnt[0]_PWR_4_o_add_1_OUT<0>> created at line 277.
+    Found 1-bit adder for signal <fsm_ce_gen_proc.clk_cnt[0]_PWR_4_o_add_3_OUT<0>> created at line 291.
+    Found 8-bit comparator equal for signal <_n0380> created at line 363
+    Found 6-bit comparator equal for signal <_n0400> created at line 366
     Summary:
 	inferred   2 Adder/Subtractor(s).
 	inferred  71 D-type flip-flop(s).
@@ -243,7 +243,7 @@ INFO:Xst:1799 - State st_wait_spi_ack_2 is never reached in FSM <s_wr_st_reg>.
 Unit <spi_master_atlys_top> synthesized.
 
 Synthesizing Unit <spi_master>.
-    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_master.vhd".
+    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_master.vhd".
         N = 8
         CPOL = '0'
         CPHA = '0'
@@ -291,7 +291,7 @@ Synthesizing Unit <spi_master>.
 Unit <spi_master> synthesized.
 
 Synthesizing Unit <spi_slave>.
-    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/spi_slave.vhd".
+    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/spi_slave.vhd".
         N = 8
         CPOL = '0'
         CPHA = '0'
@@ -329,36 +329,38 @@ Synthesizing Unit <spi_slave>.
 Unit <spi_slave> synthesized.
 
 Synthesizing Unit <grp_debouncer_1>.
-    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/grp_debouncer.vhd".
+    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/grp_debouncer.vhd".
         N = 8
-        CNT_VAL = 20000
+        CNT_VAL = 200
     Found 8-bit register for signal <reg_A>.
     Found 8-bit register for signal <reg_B>.
+    Found 1-bit register for signal <strb_reg>.
     Found 8-bit register for signal <reg_out>.
-    Found 15-bit register for signal <cnt_reg>.
-    Found 16-bit adder for signal <n0024> created at line 162.
-    Found 8-bit comparator not equal for signal <n0008> created at line 184
-    Found 8-bit comparator not equal for signal <n0010> created at line 190
+    Found 8-bit register for signal <cnt_reg>.
+    Found 9-bit adder for signal <n0026> created at line 167.
+    Found 8-bit comparator not equal for signal <n0009> created at line 192
+    Found 8-bit comparator not equal for signal <n0011> created at line 194
     Summary:
 	inferred   1 Adder/Subtractor(s).
-	inferred  39 D-type flip-flop(s).
+	inferred  33 D-type flip-flop(s).
 	inferred   2 Comparator(s).
 Unit <grp_debouncer_1> synthesized.
 
 Synthesizing Unit <grp_debouncer_2>.
-    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spimasterslave/spi_master_slave/trunk/syn/grp_debouncer.vhd".
+    Related source file is "c:/dropbox/dropbox/vhdl_training/opencores/spi_master_slave/spi_master_slave/trunk/syn/grp_debouncer.vhd".
         N = 6
-        CNT_VAL = 20000
+        CNT_VAL = 200
     Found 6-bit register for signal <reg_A>.
     Found 6-bit register for signal <reg_B>.
+    Found 1-bit register for signal <strb_reg>.
     Found 6-bit register for signal <reg_out>.
-    Found 15-bit register for signal <cnt_reg>.
-    Found 16-bit adder for signal <n0024> created at line 162.
-    Found 6-bit comparator not equal for signal <n0008> created at line 184
-    Found 6-bit comparator not equal for signal <n0010> created at line 190
+    Found 8-bit register for signal <cnt_reg>.
+    Found 9-bit adder for signal <n0026> created at line 167.
+    Found 6-bit comparator not equal for signal <n0009> created at line 192
+    Found 6-bit comparator not equal for signal <n0011> created at line 194
     Summary:
 	inferred   1 Adder/Subtractor(s).
-	inferred  33 D-type flip-flop(s).
+	inferred  27 D-type flip-flop(s).
 	inferred   2 Comparator(s).
 Unit <grp_debouncer_2> synthesized.
 
@@ -368,14 +370,13 @@ HDL Synthesis Report
 Macro Statistics
 # Adders/Subtractors                                   : 7
  1-bit adder                                           : 3
- 16-bit adder                                          : 2
  4-bit subtractor                                      : 2
-# Registers                                            : 73
- 1-bit register                                        : 49
- 15-bit register                                       : 2
+ 9-bit adder                                           : 2
+# Registers                                            : 75
+ 1-bit register                                        : 51
  4-bit register                                        : 2
  6-bit register                                        : 4
- 8-bit register                                        : 16
+ 8-bit register                                        : 18
 # Comparators                                          : 14
  4-bit comparator greater                              : 8
  6-bit comparator equal                                : 1
@@ -426,9 +427,9 @@ Macro Statistics
  4-bit subtractor                                      : 2
 # Counters                                             : 5
  1-bit up counter                                      : 3
- 15-bit up counter                                     : 2
-# Registers                                            : 206
- Flip-Flops                                            : 206
+ 8-bit up counter                                      : 2
+# Registers                                            : 208
+ Flip-Flops                                            : 208
 # Comparators                                          : 14
  4-bit comparator greater                              : 8
  6-bit comparator equal                                : 1
@@ -510,6 +511,8 @@ Optimizing unit <grp_debouncer_2> ...
 Optimizing unit <spi_master> ...
 
 Optimizing unit <spi_slave> ...
+WARNING:Xst:2677 - Node <Inst_sw_debouncer/strb_reg> of sequential type is unconnected in block <spi_master_atlys_top>.
+WARNING:Xst:2677 - Node <Inst_btn_debouncer/strb_reg> of sequential type is unconnected in block <spi_master_atlys_top>.
 WARNING:Xst:1293 - FF/Latch <fsm_ce> has a constant value of 1 in block <spi_master_atlys_top>. This FF/Latch will be trimmed during the optimization process.
 WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <samp_ce> has a constant value of 1 in block <spi_master_atlys_top>. This FF/Latch will be trimmed during the optimization process.
 WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <samp_ce_gen_proc.clk_cnt_0> has a constant value of 0 in block <spi_master_atlys_top>. This FF/Latch will be trimmed during the optimization process.
@@ -534,8 +537,8 @@ Final Macro Processing ...
 Final Register Report
 
 Macro Statistics
-# Registers                                            : 232
- Flip-Flops                                            : 232
+# Registers                                            : 218
+ Flip-Flops                                            : 218
 
 =========================================================================
 
@@ -558,30 +561,30 @@ Top Level Output File Name         : spi_master_atlys_top.ngc
 
 Primitive and Black Box Usage:
 ------------------------------
-# BELS                             : 259
+# BELS                             : 202
 #      GND                         : 1
 #      INV                         : 4
-#      LUT1                        : 28
-#      LUT2                        : 3
-#      LUT3                        : 26
+#      LUT1                        : 14
+#      LUT2                        : 4
+#      LUT3                        : 28
 #      LUT4                        : 17
-#      LUT5                        : 62
-#      LUT6                        : 55
-#      MUXCY                       : 28
+#      LUT5                        : 54
+#      LUT6                        : 45
+#      MUXCY                       : 14
 #      MUXF7                       : 4
 #      VCC                         : 1
-#      XORCY                       : 30
-# FlipFlops/Latches                : 232
-#      FD                          : 97
+#      XORCY                       : 16
+# FlipFlops/Latches                : 218
+#      FD                          : 84
 #      FD_1                        : 1
 #      FDC                         : 8
-#      FDE                         : 111
+#      FDE                         : 110
 #      FDP_1                       : 1
 #      FDR                         : 10
 #      FDRE                        : 4
-# Clock Buffers                    : 2
+# Clock Buffers                    : 3
 #      BUFG                        : 1
-#      BUFGP                       : 1
+#      BUFGP                       : 2
 # IO Buffers                       : 62
 #      IBUF                        : 14
 #      OBUF                        : 48
@@ -593,23 +596,23 @@ Selected Device : 6slx45csg324-2
 
 
 Slice Logic Utilization: 
- Number of Slice Registers:             232  out of  54576     0%  
- Number of Slice LUTs:                  195  out of  27288     0%  
-    Number used as Logic:               195  out of  27288     0%  
+ Number of Slice Registers:             218  out of  54576     0%  
+ Number of Slice LUTs:                  166  out of  27288     0%  
+    Number used as Logic:               166  out of  27288     0%  
 
 Slice Logic Distribution: 
- Number of LUT Flip Flop pairs used:    301
-   Number with an unused Flip Flop:      69  out of    301    22%  
-   Number with an unused LUT:           106  out of    301    35%  
-   Number of fully used LUT-FF pairs:   126  out of    301    41%  
-   Number of unique control sets:        23
+ Number of LUT Flip Flop pairs used:    272
+   Number with an unused Flip Flop:      54  out of    272    19%  
+   Number with an unused LUT:           106  out of    272    38%  
+   Number of fully used LUT-FF pairs:   112  out of    272    41%  
+   Number of unique control sets:        24
 
 IO Utilization: 
- Number of IOs:                          63
- Number of bonded IOBs:                  63  out of    218    28%  
+ Number of IOs:                          64
+ Number of bonded IOBs:                  64  out of    218    29%  
 
 Specific Feature Utilization:
- Number of BUFG/BUFGCTRLs:                2  out of     16    12%  
+ Number of BUFG/BUFGCTRLs:                3  out of     16    18%  
 
 ---------------------------
 Partition Resource Summary:
@@ -632,7 +635,8 @@ Clock Information:
 -----------------------------------+------------------------+-------+
 Clock Signal                       | Clock buffer(FF name)  | Load  |
 -----------------------------------+------------------------+-------+
-gclk_i                             | BUFGP                  | 203   |
+pclk_i                             | BUFGP                  | 161   |
+sclk_i                             | BUFGP                  | 28    |
 Inst_spi_master_port/spi_clk_reg   | BUFG                   | 29    |
 -----------------------------------+------------------------+-------+
 
@@ -644,7 +648,7 @@ Timing Summary:
 ---------------
 Speed Grade: -2
 
-   Minimum period: 5.267ns (Maximum Frequency: 189.861MHz)
+   Minimum period: 5.283ns (Maximum Frequency: 189.286MHz)
    Minimum input arrival time before clock: 2.083ns
    Maximum output required time after clock: 7.216ns
    Maximum combinational path delay: No path found
@@ -654,29 +658,51 @@ Timing Details:
 All values displayed in nanoseconds (ns)
 
 =========================================================================
-Timing constraint: Default period analysis for Clock 'gclk_i'
-  Clock period: 5.267ns (frequency: 189.861MHz)
-  Total number of paths / destination ports: 2605 / 280
+Timing constraint: Default period analysis for Clock 'pclk_i'
+  Clock period: 5.283ns (frequency: 189.286MHz)
+  Total number of paths / destination ports: 1509 / 201
 -------------------------------------------------------------------------
-Delay:               5.267ns (Levels of Logic = 4)
+Delay:               5.283ns (Levels of Logic = 4)
   Source:            sw_reg_5 (FF)
-  Destination:       m_wr_st_reg_FSM_FFd4 (FF)
-  Source Clock:      gclk_i rising
-  Destination Clock: gclk_i rising
+  Destination:       btn_reg_0 (FF)
+  Source Clock:      pclk_i rising
+  Destination Clock: pclk_i rising
 
-  Data Path: sw_reg_5 to m_wr_st_reg_FSM_FFd4
+  Data Path: sw_reg_5 to btn_reg_0
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
      FDE:C->Q              3   0.525   1.196  sw_reg_5 (sw_reg_5)
      LUT6:I1->O            2   0.254   0.834  _n038082 (_n038081)
-     LUT6:I4->O            8   0.250   0.944  _n038083 (_n0380)
-     LUT5:I4->O            1   0.254   0.682  m_wr_st_reg_FSM_FFd2-In1 (m_wr_st_reg_FSM_FFd2-In1)
-     LUT6:I5->O            1   0.254   0.000  m_wr_st_reg_FSM_FFd2-In2 (m_wr_st_reg_FSM_FFd2-In)
-     FDR:D                     0.074          m_wr_st_reg_FSM_FFd2
+     LUT6:I4->O            3   0.250   0.766  _n038083 (_n0380)
+     LUT5:I4->O            6   0.254   0.876  _n0418_inv1_rstpot (_n0418_inv1_rstpot)
+     LUT3:I2->O            1   0.254   0.000  btn_reg_0_dpot (btn_reg_0_dpot)
+     FDE:D                     0.074          btn_reg_0
     ----------------------------------------
-    Total                      5.267ns (1.611ns logic, 3.656ns route)
-                                       (30.6% logic, 69.4% route)
+    Total                      5.283ns (1.611ns logic, 3.672ns route)
+                                       (30.5% logic, 69.5% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'sclk_i'
+  Clock period: 3.764ns (frequency: 265.675MHz)
+  Total number of paths / destination ports: 173 / 52
+-------------------------------------------------------------------------
+Delay:               3.764ns (Levels of Logic = 1)
+  Source:            Inst_spi_master_port/state_reg_3 (FF)
+  Destination:       Inst_spi_master_port/sh_reg_7 (FF)
+  Source Clock:      sclk_i rising
+  Destination Clock: sclk_i rising
+
+  Data Path: Inst_spi_master_port/state_reg_3 to Inst_spi_master_port/sh_reg_7
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDRE:C->Q            21   0.525   1.740  Inst_spi_master_port/state_reg_3 (Inst_spi_master_port/state_reg_3)
+     LUT6:I1->O            8   0.254   0.943  Inst_spi_master_port/_n0278_inv1 (Inst_spi_master_port/_n0278_inv)
+     FDE:CE                    0.302          Inst_spi_master_port/sh_reg_0
+    ----------------------------------------
+    Total                      3.764ns (1.081ns logic, 2.683ns route)
+                                       (28.7% logic, 71.3% route)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'Inst_spi_master_port/spi_clk_reg'
@@ -694,7 +720,7 @@ Delay:               2.172ns (Levels of Logic = 2)
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
      FDC:C->Q              2   0.525   1.156  Inst_spi_slave_port/state_reg_1_1 (Inst_spi_slave_port/state_reg_1_1)
-     LUT6:I1->O            1   0.254   0.000  Inst_spi_slave_port/tx_bit_next3_F (N10)
+     LUT6:I1->O            1   0.254   0.000  Inst_spi_slave_port/tx_bit_next3_F (N14)
      MUXF7:I0->O           1   0.163   0.000  Inst_spi_slave_port/tx_bit_next3 (Inst_spi_slave_port/tx_bit_next)
      FD_1:D                    0.074          Inst_spi_slave_port/tx_bit_reg
     ----------------------------------------
@@ -702,13 +728,13 @@ Delay:               2.172ns (Levels of Logic = 2)
                                        (46.8% logic, 53.2% route)
 
 =========================================================================
-Timing constraint: Default OFFSET IN BEFORE for Clock 'gclk_i'
+Timing constraint: Default OFFSET IN BEFORE for Clock 'pclk_i'
   Total number of paths / destination ports: 14 / 14
 -------------------------------------------------------------------------
 Offset:              2.083ns (Levels of Logic = 1)
   Source:            sw_i<7> (PAD)
   Destination:       Inst_sw_debouncer/reg_A_7 (FF)
-  Destination Clock: gclk_i rising
+  Destination Clock: pclk_i rising
 
   Data Path: sw_i<7> to Inst_sw_debouncer/reg_A_7
                                 Gate     Net
@@ -721,25 +747,24 @@ Offset:              2.083ns (Levels of Logic = 1)
                                        (67.3% logic, 32.7% route)
 
 =========================================================================
-Timing constraint: Default OFFSET OUT AFTER for Clock 'gclk_i'
-  Total number of paths / destination ports: 37 / 31
+Timing constraint: Default OFFSET OUT AFTER for Clock 'pclk_i'
+  Total number of paths / destination ports: 17 / 16
 -------------------------------------------------------------------------
-Offset:              7.216ns (Levels of Logic = 3)
-  Source:            Inst_spi_master_port/state_reg_2 (FF)
+Offset:              5.464ns (Levels of Logic = 2)
+  Source:            Inst_spi_master_port/wren (FF)
   Destination:       spi_mosi_o (PAD)
-  Source Clock:      gclk_i rising
+  Source Clock:      pclk_i rising
 
-  Data Path: Inst_spi_master_port/state_reg_2 to spi_mosi_o
+  Data Path: Inst_spi_master_port/wren to spi_mosi_o
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
-     FDRE:C->Q            20   0.525   1.394  Inst_spi_master_port/state_reg_2 (Inst_spi_master_port/state_reg_2)
-     LUT2:I0->O            2   0.250   1.156  Inst_spi_master_port/spi_mosi_o_SW0 (N0)
-     LUT6:I1->O            2   0.254   0.725  Inst_spi_master_port/spi_mosi_o (spi_mosi_o_OBUF)
+     FD:C->Q               8   0.525   1.052  Inst_spi_master_port/wren (Inst_spi_master_port/wren)
+     LUT6:I4->O            2   0.250   0.725  Inst_spi_master_port/spi_mosi_o (spi_mosi_o_OBUF)
      OBUF:I->O                 2.912          spi_mosi_o_OBUF (spi_mosi_o)
     ----------------------------------------
-    Total                      7.216ns (3.941ns logic, 3.275ns route)
-                                       (54.6% logic, 45.4% route)
+    Total                      5.464ns (3.687ns logic, 1.777ns route)
+                                       (67.5% logic, 32.5% route)
 
 =========================================================================
 Timing constraint: Default OFFSET OUT AFTER for Clock 'Inst_spi_master_port/spi_clk_reg'
@@ -762,6 +787,27 @@ Offset:              5.307ns (Levels of Logic = 2)
                                        (69.2% logic, 30.8% route)
 
 =========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'sclk_i'
+  Total number of paths / destination ports: 20 / 16
+-------------------------------------------------------------------------
+Offset:              7.216ns (Levels of Logic = 3)
+  Source:            Inst_spi_master_port/state_reg_2 (FF)
+  Destination:       spi_mosi_o (PAD)
+  Source Clock:      sclk_i rising
+
+  Data Path: Inst_spi_master_port/state_reg_2 to spi_mosi_o
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDRE:C->Q            20   0.525   1.394  Inst_spi_master_port/state_reg_2 (Inst_spi_master_port/state_reg_2)
+     LUT2:I0->O            2   0.250   1.156  Inst_spi_master_port/spi_mosi_o_SW0 (N4)
+     LUT6:I1->O            2   0.254   0.725  Inst_spi_master_port/spi_mosi_o (spi_mosi_o_OBUF)
+     OBUF:I->O                 2.912          spi_mosi_o_OBUF (spi_mosi_o)
+    ----------------------------------------
+    Total                      7.216ns (3.941ns logic, 3.275ns route)
+                                       (54.6% logic, 45.4% route)
+
+=========================================================================
 
 Cross Clock Domains Report:
 --------------------------
@@ -772,29 +818,41 @@ Clock to Setup on destination clock Inst_spi_master_port/spi_clk_reg
 Source Clock                    |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
 --------------------------------+---------+---------+---------+---------+
 Inst_spi_master_port/spi_clk_reg|    3.682|         |    2.224|         |
-gclk_i                          |    4.633|         |    3.198|         |
+pclk_i                          |    3.012|         |    2.135|         |
+sclk_i                          |    4.633|         |    3.198|         |
 --------------------------------+---------+---------+---------+---------+
 
-Clock to Setup on destination clock gclk_i
+Clock to Setup on destination clock pclk_i
 --------------------------------+---------+---------+---------+---------+
                                 | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
 Source Clock                    |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
 --------------------------------+---------+---------+---------+---------+
-Inst_spi_master_port/spi_clk_reg|    2.078|    1.855|         |         |
-gclk_i                          |    5.267|         |         |         |
+Inst_spi_master_port/spi_clk_reg|    2.078|         |         |         |
+pclk_i                          |    5.283|         |         |         |
+sclk_i                          |    3.198|         |         |         |
+--------------------------------+---------+---------+---------+---------+
+
+Clock to Setup on destination clock sclk_i
+--------------------------------+---------+---------+---------+---------+
+                                | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
+Source Clock                    |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
+--------------------------------+---------+---------+---------+---------+
+Inst_spi_master_port/spi_clk_reg|         |    1.855|         |         |
+pclk_i                          |    3.244|         |         |         |
+sclk_i                          |    3.764|         |         |         |
 --------------------------------+---------+---------+---------+---------+
 
 =========================================================================
 
 
 Total REAL time to Xst completion: 6.00 secs
-Total CPU time to Xst completion: 6.29 secs
+Total CPU time to Xst completion: 6.39 secs
  
 --> 
 
-Total memory usage is 188108 kilobytes
+Total memory usage is 179340 kilobytes
 
 Number of errors   :    0 (   0 filtered)
-Number of warnings :   26 (   0 filtered)
+Number of warnings :   28 (   0 filtered)
 Number of infos    :   24 (   0 filtered)
 

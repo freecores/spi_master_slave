@@ -13,7 +13,8 @@ architecture behavior of testbench is
     -- Constants
     --=============================================================================================
     -- clock period
-    constant CLK_PERIOD : time := 10 ns;
+    constant SCLK_PERIOD : time := 11 ns;           -- serial high speed clock
+    constant PCLK_PERIOD : time := 10 ns;           -- parallel high-speed clock
 
     -- button definitions
     constant btRESET    : integer := 0;             -- these are constants to use as btn_i(x)
@@ -28,7 +29,8 @@ architecture behavior of testbench is
     --=============================================================================================
     component spi_master_atlys_top
     port(
-        gclk_i : in std_logic;
+        sclk_i : in std_logic;
+        pclk_i : in std_logic;
         sw_i : in std_logic_vector(7 downto 0);
         btn_i : in std_logic_vector(5 downto 0);          
         spi_ssel_o : out std_logic;
@@ -53,6 +55,7 @@ architecture behavior of testbench is
     --=============================================================================================
     --- clock signals ---
     signal sysclk           : std_logic := '0';                                 -- 100MHz clock
+    signal pclk             : std_logic := '0';                                 -- 100MHz clock
     --- switch debouncer signals ---
     signal sw_data          : std_logic_vector (7 downto 0) := (others => '0'); -- switch data
     --- pushbutton debouncer signals ---
@@ -94,7 +97,8 @@ begin
     --      set debounce time to 2 us to save simulation time
 	Inst_spi_master_atlys_top: spi_master_atlys_top
         port map(
-            gclk_i => sysclk,
+            sclk_i => sysclk,
+            pclk_i => pclk,
             spi_ssel_o => spi_ssel,
             spi_sck_o => spi_sck,
             spi_mosi_o => spi_mosi,
@@ -125,13 +129,21 @@ begin
     --=============================================================================================
     -- CLOCK GENERATION
     --=============================================================================================
-    gclk_proc: process is
+    sysclk_proc: process is
     begin
         loop
             sysclk <= not sysclk;
-            wait for CLK_PERIOD / 2;
+            wait for SCLK_PERIOD / 2;
         end loop;
-    end process gclk_proc;
+    end process sysclk_proc;
+
+    pclk_proc: process is
+    begin
+        loop
+            pclk <= not pclk;
+            wait for PCLK_PERIOD / 2;
+        end loop;
+    end process pclk_proc;
 
     --=============================================================================================
     -- TEST BENCH STIMULI
@@ -150,6 +162,14 @@ begin
         sw_data <= X"C9";
         wait for 5 us;
         sw_data <= X"55";
+        wait for 5 us;
+        sw_data <= X"AA";
+        wait for 5 us;
+        sw_data <= X"1e";
+        wait for 5 us;
+        sw_data <= X"79";
+        wait for 5 us;
+        sw_data <= X"40";
         wait for 5 us;
         assert false report "End Simulation" severity failure; -- stop simulation
     end process tb;

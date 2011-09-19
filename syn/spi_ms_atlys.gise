@@ -47,8 +47,8 @@
     <file xil_pn:branch="PostRouteSimulation" xil_pn:fileType="FILE_NETGEN_REPORT" xil_pn:name="netgen/par/spi_master_atlys_top_timesim.nlf"/>
     <file xil_pn:branch="PostRouteSimulation" xil_pn:fileType="FILE_SDF" xil_pn:name="netgen/par/spi_master_atlys_top_timesim.sdf"/>
     <file xil_pn:branch="PostRouteSimulation" xil_pn:fileType="FILE_VHDL" xil_pn:name="netgen/par/spi_master_atlys_top_timesim.vhd"/>
-    <file xil_pn:branch="PostSynthSim" xil_pn:fileType="FILE_NETGEN_REPORT" xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.nlf"/>
-    <file xil_pn:branch="PostSynthSim" xil_pn:fileType="FILE_VHDL" xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.vhd"/>
+    <file xil_pn:fileType="FILE_NETGEN_REPORT" xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.nlf"/>
+    <file xil_pn:fileType="FILE_VHDL" xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.vhd"/>
     <file xil_pn:branch="PostTranslateSimulation" xil_pn:fileType="FILE_NETGEN_REPORT" xil_pn:name="netgen/translate/spi_master_atlys_top_translate.nlf"/>
     <file xil_pn:branch="PostTranslateSimulation" xil_pn:fileType="FILE_VHDL" xil_pn:name="netgen/translate/spi_master_atlys_top_translate.vhd"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spi_master_atlys_top.bgn" xil_pn:subbranch="FPGAConfiguration"/>
@@ -122,7 +122,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1314583834" xil_pn:in_ck="4343194839995565815" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1314583834">
+    <transform xil_pn:end_ts="1314889672" xil_pn:in_ck="4343194839995565815" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1314889672">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
@@ -159,6 +159,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
@@ -172,6 +173,7 @@
     <transform xil_pn:end_ts="1314545598" xil_pn:in_ck="7130759491340027311" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-5414671575160791934" xil_pn:start_ts="1314545598">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
@@ -206,7 +208,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1314587294" xil_pn:in_ck="-8247761554522826671" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-8195216592062898977" xil_pn:start_ts="1314587285">
+    <transform xil_pn:end_ts="1314893227" xil_pn:in_ck="-8247761554522826671" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-8195216592062898977" xil_pn:start_ts="1314893218">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -226,11 +228,11 @@
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1314587294" xil_pn:in_ck="-6344801126424831697" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-4068456177828066131" xil_pn:start_ts="1314587294">
+    <transform xil_pn:end_ts="1314889842" xil_pn:in_ck="-6344801126424831697" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-4068456177828066131" xil_pn:start_ts="1314889842">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1314587297" xil_pn:in_ck="-2449764723691034422" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-177710677611610831" xil_pn:start_ts="1314587294">
+    <transform xil_pn:end_ts="1314893230" xil_pn:in_ck="-2449764723691034422" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-177710677611610831" xil_pn:start_ts="1314893227">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
@@ -239,7 +241,7 @@
       <outfile xil_pn:name="spi_master_atlys_top.ngd"/>
       <outfile xil_pn:name="spi_master_atlys_top_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1314587317" xil_pn:in_ck="-2449764723691034421" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="-1658770934691434356" xil_pn:start_ts="1314587297">
+    <transform xil_pn:end_ts="1314893249" xil_pn:in_ck="-2449764723691034421" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="-1658770934691434356" xil_pn:start_ts="1314893230">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
@@ -253,7 +255,7 @@
       <outfile xil_pn:name="spi_master_atlys_top_summary.xml"/>
       <outfile xil_pn:name="spi_master_atlys_top_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1314587335" xil_pn:in_ck="5633518429974504804" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="7846039340612803429" xil_pn:start_ts="1314587317">
+    <transform xil_pn:end_ts="1314893267" xil_pn:in_ck="5633518429974504804" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="7846039340612803429" xil_pn:start_ts="1314893249">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -271,7 +273,11 @@
     <transform xil_pn:end_ts="1314587493" xil_pn:in_ck="-5988982649231273448" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="7135157351517842893" xil_pn:start_ts="1314587477">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <status xil_pn:value="OutputRemoved"/>
       <outfile xil_pn:name="spi_master_atlys_top.bgn"/>
       <outfile xil_pn:name="spi_master_atlys_top.bit"/>
       <outfile xil_pn:name="spi_master_atlys_top.drc"/>
@@ -280,35 +286,25 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1314586528" xil_pn:in_ck="-5988982649231273448" xil_pn:name="TRAN_postParSimModel" xil_pn:prop_ck="5598892574118791338" xil_pn:start_ts="1314586521">
+    <transform xil_pn:end_ts="1314893294" xil_pn:in_ck="-5988982649231273448" xil_pn:name="TRAN_postParSimModel" xil_pn:prop_ck="5598892574118791338" xil_pn:start_ts="1314893286">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="InputChanged"/>
       <outfile xil_pn:name="netgen"/>
       <outfile xil_pn:name="netgen/par/spi_master_atlys_top_timesim.nlf"/>
       <outfile xil_pn:name="netgen/par/spi_master_atlys_top_timesim.sdf"/>
       <outfile xil_pn:name="netgen/par/spi_master_atlys_top_timesim.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1314584667" xil_pn:in_ck="-7029858421675272663" xil_pn:name="TRAN_copyPost-ParAbstractToPreSimulation" xil_pn:start_ts="1314584667">
+    <transform xil_pn:end_ts="1314893938" xil_pn:in_ck="-7029858421675272663" xil_pn:name="TRAN_copyPost-ParAbstractToPreSimulation" xil_pn:start_ts="1314893938">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="netgen/par/spi_master_atlys_top_timesim.sdf"/>
       <outfile xil_pn:name="netgen/par/spi_master_atlys_top_timesim.vhd"/>
       <outfile xil_pn:name="spi_master_atlys_test.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1314584674" xil_pn:in_ck="9156795390127265392" xil_pn:name="TRAN_ISimulatePostPlace&amp;RouteModelRunFuse" xil_pn:prop_ck="4831401045093024940" xil_pn:start_ts="1314584667">
+    <transform xil_pn:end_ts="1314893944" xil_pn:in_ck="9156795390127265392" xil_pn:name="TRAN_ISimulatePostPlace&amp;RouteModelRunFuse" xil_pn:prop_ck="4831401045093024940" xil_pn:start_ts="1314893938">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="fuse.log"/>
       <outfile xil_pn:name="isim"/>
@@ -317,17 +313,16 @@
       <outfile xil_pn:name="testbench_par.prj"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1314584674" xil_pn:in_ck="7130759509275896515" xil_pn:name="TRAN_ISimulatePostPlace&amp;RouteModel" xil_pn:prop_ck="-3956543683666394319" xil_pn:start_ts="1314584674">
+    <transform xil_pn:end_ts="1314893945" xil_pn:in_ck="7130759509275896515" xil_pn:name="TRAN_ISimulatePostPlace&amp;RouteModel" xil_pn:prop_ck="-3956543683666394319" xil_pn:start_ts="1314893944">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="isim.cmd"/>
       <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="testbench_isim_par.wdb"/>
     </transform>
-    <transform xil_pn:end_ts="1314587335" xil_pn:in_ck="-2449764723691034553" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1314587329">
+    <transform xil_pn:end_ts="1314893267" xil_pn:in_ck="-2449764723691034553" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1314893261">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
@@ -339,22 +334,22 @@
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
-      <outfile xil_pn:name="netgen"/>
-      <outfile xil_pn:name="netgen/map/spi_master_atlys_top_map.nlf"/>
-      <outfile xil_pn:name="netgen/map/spi_master_atlys_top_map.sdf"/>
-      <outfile xil_pn:name="netgen/map/spi_master_atlys_top_map.vhd"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
-    <transform xil_pn:end_ts="1314586512" xil_pn:in_ck="-5988982649231273316" xil_pn:name="TRAN_postXlateSimModel" xil_pn:prop_ck="4032524037721565697" xil_pn:start_ts="1314586510">
+    <transform xil_pn:end_ts="1314889848" xil_pn:in_ck="-5988982649231273316" xil_pn:name="TRAN_postXlateSimModel" xil_pn:prop_ck="4032524037721565697" xil_pn:start_ts="1314889846">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="netgen"/>
       <outfile xil_pn:name="netgen/translate/spi_master_atlys_top_translate.nlf"/>
       <outfile xil_pn:name="netgen/translate/spi_master_atlys_top_translate.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1314584431" xil_pn:in_ck="1721521412391114385" xil_pn:name="TRAN_copyPost-TranslateAbstractToPreSimulation" xil_pn:start_ts="1314584431">
+    <transform xil_pn:end_ts="1314889848" xil_pn:in_ck="1721521412391114385" xil_pn:name="TRAN_copyPost-TranslateAbstractToPreSimulation" xil_pn:start_ts="1314889848">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
@@ -365,10 +360,11 @@
       <outfile xil_pn:name="netgen/translate/spi_master_atlys_top_translate.vhd"/>
       <outfile xil_pn:name="spi_master_atlys_test.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1314584434" xil_pn:in_ck="1721521412391114385" xil_pn:name="TRAN_ISimulatePostTranslateModelRunFuse" xil_pn:prop_ck="4831401045093024940" xil_pn:start_ts="1314584431">
+    <transform xil_pn:end_ts="1314889853" xil_pn:in_ck="1721521412391114385" xil_pn:name="TRAN_ISimulatePostTranslateModelRunFuse" xil_pn:prop_ck="4831401045093024940" xil_pn:start_ts="1314889848">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
@@ -380,9 +376,10 @@
       <outfile xil_pn:name="testbench_translate.prj"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1314584435" xil_pn:in_ck="-2373432107787769551" xil_pn:name="TRAN_ISimulatePostTranslateModel" xil_pn:prop_ck="-8441040086216995160" xil_pn:start_ts="1314584434">
+    <transform xil_pn:end_ts="1314889853" xil_pn:in_ck="-2373432107787769551" xil_pn:name="TRAN_ISimulatePostTranslateModel" xil_pn:prop_ck="-8441040086216995160" xil_pn:start_ts="1314889853">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
@@ -394,10 +391,9 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
-      <outfile xil_pn:name="netgen"/>
-      <outfile xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.nlf"/>
-      <outfile xil_pn:name="netgen/synthesis/spi_master_atlys_top_synthesis.vhd"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
   </transforms>
 

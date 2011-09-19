@@ -113,6 +113,7 @@
 -- 2011/07/06   v0.01.0010  [JD]    started development. verification of synthesis circuit inference.
 -- 2011/07/07   v1.00.0020  [JD]    verification in silicon. operation at 100MHz, tested on the Atlys board (Spartan-6 LX45).
 -- 2011/08/10   v1.01.0025  [JD]    added one pipeline delay to new data strobe output.
+-- 2011/09/19   v1.01.0030  [JD]    changed range for internal counter (cnt_reg, cnt_next) to avoid adder flipover (Altera/ModelSim).
 --
 -----------------------------------------------------------------------------------------------------------------------
 --  TODO
@@ -145,8 +146,8 @@ architecture rtl of grp_debouncer is
     signal strb_next : std_logic := '0';                                        -- lookahead strobe
     signal dat_diff : std_logic := '0';                                         -- edge detector
     -- debounce counter
-    signal cnt_reg : integer range CNT_VAL downto 0 := 0;                       -- debounce period counter
-    signal cnt_next : integer range CNT_VAL downto 0 := 0;                      -- combinatorial signal
+    signal cnt_reg : integer range CNT_VAL + 1 downto 0 := 0;                   -- debounce period counter
+    signal cnt_next : integer range CNT_VAL + 1 downto 0 := 0;                  -- combinatorial signal
 begin
 
     --=============================================================================================

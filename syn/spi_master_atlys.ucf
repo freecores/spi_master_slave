@@ -5,7 +5,7 @@
 
 
 # clock pin for Atlys rev C board
- NET "gclk_i"  LOC = "L15"; # Bank = 1, Pin name = IO_L42P_GCLK7_M1UDM, Type = GCLK, Sch name = GCLK
+#### NET "gclk_i"  LOC = "L15"; # Bank = 1, Pin name = IO_L42P_GCLK7_M1UDM, Type = GCLK, Sch name = GCLK
 
 # onBoard USB controller
 # NET "EppAstb"   LOC = "B9";  # Bank = 0, Pin name = IO_L35P_GCLK17, Sch name = U1-FLAGA

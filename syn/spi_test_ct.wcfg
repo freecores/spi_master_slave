@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="D:/Dropbox/VHDL_training/ISE_projects/spi_ms_atlys_ct/testbench_isim_translate.wdb" id="1" type="auto">
+      <db_ref path="C:/dropbox/Dropbox/VHDL_training/OpenCores/spi_master_slave/spi_master_slave/trunk/syn/testbench_isim_par.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="std_logic_1164" />
@@ -16,7 +16,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="21" />
+   <WVObjectSize size="22" />
    <wvobject fp_name="/testbench/dbg" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">dbg[11:0]</obj_property>
       <obj_property name="ObjectShortName">dbg[11:0]</obj_property>
@@ -25,6 +25,10 @@
    <wvobject fp_name="/testbench/sysclk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">sysclk</obj_property>
       <obj_property name="ObjectShortName">sysclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/pclk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">pclk</obj_property>
+      <obj_property name="ObjectShortName">pclk</obj_property>
    </wvobject>
    <wvobject fp_name="/testbench/sw_data" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">sw_data[7:0]</obj_property>

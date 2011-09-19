@@ -21,7 +21,7 @@
 -- 2011/07/02   v0.01.0010  [JD]    implemented a wire-through from switches to LEDs, just to test the toolchain. It worked!
 -- 2011/07/03   v0.01.0020  [JD]    added clock input, and a simple LED blinker for each LED. 
 -- 2011/07/03   v0.01.0030  [JD]    added clear input, and instantiated a SPI_MASTER from my OpenCores project. 
--- 2011/07/04   v0.01.0040  [JD]    changed all clocks to clock enables, and use the 100MHz board gclk_i to clock all registers.
+-- 2011/07/04   v0.01.0040  [JD]    changed all clocks to clock enables, and use the 100MHz board pclk_i to clock all registers.
 --                                  this change made the design go up to 288MHz, after synthesis.
 -- 2011/07/07   v0.03.0050  [JD]    implemented a 16pin umbilical port for the MSO2014 in the Atlys VmodBB board, and moved all
 --                                  external monitoring pins to the VHDCI ports.
@@ -42,10 +42,11 @@ entity spi_master_atlys_top is
         CPOL : std_logic := '0';                        -- SPI mode selection (mode 0 default)
         CPHA : std_logic := '0';                        -- CPOL = clock polarity, CPHA = clock phase.
         PREFETCH : positive := 3;                       -- prefetch lookahead cycles
-        CLK_PERIOD : time := 10 ns;                     -- clock period for gclk_i (default 100MHz)
-        DEBOUNCE_TIME : time := 200 us);                -- switch debounce time (use 200 us for silicon, 2 us for simulation)
+        CLK_PERIOD : time := 10 ns;                     -- clock period for pclk_i (default 100MHz)
+        DEBOUNCE_TIME : time := 2 us);                  -- switch debounce time (use 200 us for silicon, 2 us for simulation)
     Port (
-        gclk_i : in std_logic := 'X';                   -- board clock input 100MHz
+        sclk_i : in std_logic := 'X';                   -- board clock input 100MHz
+        pclk_i : in std_logic := 'X';                   -- board clock input 100MHz
         --- SPI interface ---           
         spi_ssel_o : out std_logic;                     -- spi port SSEL
         spi_sck_o : out std_logic;                      -- spi port SCK
@@ -71,7 +72,7 @@ architecture rtl of spi_master_atlys_top is
     --=============================================================================================
     -- Constants
     --=============================================================================================
-    -- clock divider count values from gclk_i (100MHz board clock)
+    -- clock divider count values from pclk_i (100MHz board clock)
     -- these constants shall not be zero
     constant FSM_CE_DIV         : integer := 1;     -- fsm operates at 100MHz
     constant SPI_2X_CLK_DIV     : integer := 1;     -- 50MHz SPI clock
@@ -184,8 +185,8 @@ begin
     Inst_spi_master_port: entity work.spi_master(rtl) 
         generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH, SPI_2X_CLK_DIV => SPI_2X_CLK_DIV)
         port map( 
-            sclk_i => gclk_i,                   -- system clock is used for serial and parallel ports
-            pclk_i => gclk_i,
+            sclk_i => sclk_i,                   -- system clock is used for serial and parallel ports
+            pclk_i => pclk_i,
             rst_i => spi_rst_reg,
             spi_ssel_o => spi_ssel,
             spi_sck_o => spi_sck,
@@ -205,7 +206,7 @@ begin
     Inst_spi_slave_port: entity work.spi_slave(rtl) 
         generic map (N => N, CPOL => CPOL, CPHA => CPHA, PREFETCH => PREFETCH)
         port map( 
-            clk_i => gclk_i,
+            clk_i => pclk_i,
             spi_ssel_i => spi_ssel,             -- driven by the spi master
             spi_sck_i => spi_sck,               -- driven by the spi master
             spi_mosi_i => spi_mosi,             -- driven by the spi master
@@ -224,7 +225,7 @@ begin
     Inst_sw_debouncer: entity work.grp_debouncer(rtl)
         generic map (N => 8, CNT_VAL => DEBOUNCE_TIME / CLK_PERIOD) -- debounce 8 inputs with selected settling time
         port map(  
-            clk_i => gclk_i,                    -- system clock
+            clk_i => pclk_i,                    -- system clock
             data_i => sw_i,                     -- noisy input data
             data_o => sw_data                   -- registered stable output data
         );
@@ -233,7 +234,7 @@ begin
     Inst_btn_debouncer: entity work.grp_debouncer(rtl)
         generic map (N => 6, CNT_VAL => DEBOUNCE_TIME / CLK_PERIOD) -- debounce 6 inputs with selected settling time
         port map(  
-            clk_i => gclk_i,                    -- system clock
+            clk_i => pclk_i,                    -- system clock
             data_i => btn_i,                    -- noisy input data
             data_o => btn_data                  -- registered stable output data
         );
@@ -264,10 +265,10 @@ begin
     --      fsm clock enable,
     -----------------------------------------------------------------------------------------------
     -- generate the sampling clock enable from the 100MHz board input clock 
-    samp_ce_gen_proc: process (gclk_i) is
+    samp_ce_gen_proc: process (pclk_i) is
         variable clk_cnt : integer range SAMP_CE_DIV-1 downto 0 := 0;
     begin
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if clk_cnt = SAMP_CE_DIV-1 then
                 samp_ce <= '1';                 -- generate a single pulse every SAMP_CE_DIV clocks
                 clk_cnt := 0;
@@ -278,10 +279,10 @@ begin
         end if;
     end process samp_ce_gen_proc;
     -- generate the fsm clock enable from the 100MHz board input clock 
-    fsm_ce_gen_proc: process (gclk_i) is
+    fsm_ce_gen_proc: process (pclk_i) is
         variable clk_cnt : integer range FSM_CE_DIV-1 downto 0 := 0;
     begin
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if clk_cnt = FSM_CE_DIV-1 then
                 fsm_ce <= '1';                  -- generate a single pulse every FSM_CE_DIV clocks
                 clk_cnt := 0;
@@ -296,9 +297,9 @@ begin
     -- INPUTS LOGIC
     --=============================================================================================
     -- registered inputs
-    samp_inputs_proc: process (gclk_i) is
+    samp_inputs_proc: process (pclk_i) is
     begin
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if samp_ce = '1' then
                 clear <= btn_data(btUP);        -- clear is button UP
                 leds_reg <= leds_next;          -- update LEDs with spi_slave received data
@@ -310,10 +311,10 @@ begin
     --  REGISTER TRANSFER PROCESSES
     --=============================================================================================
     -- fsm state and data registers: synchronous to the system clock
-    fsm_reg_proc : process (gclk_i) is
+    fsm_reg_proc : process (pclk_i) is
     begin
         -- FFD registers clocked on rising edge and cleared on sync 'clear'
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if clear = '1' then                     -- sync reset
                 m_wr_st_reg <= st_reset;            -- only provide local reset for the state registers
             else
@@ -323,7 +324,7 @@ begin
             end if;
         end if;
         -- FFD registers clocked on rising edge and cleared on ssel = '1'
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if spi_ssel = '1' then                  -- sync reset
                 s_wr_st_reg <= st_reset;            -- only provide local reset for the state registers
                 s_rd_st_reg <= st_reset;
@@ -335,7 +336,7 @@ begin
             end if;
         end if;
         -- FFD registers clocked on rising edge, with no reset
-        if gclk_i'event and gclk_i = '1' then
+        if pclk_i'event and pclk_i = '1' then
             if fsm_ce = '1' then
                 --------- master write fsm signals -----------
                 spi_wren_reg_m <= spi_wren_next_m;

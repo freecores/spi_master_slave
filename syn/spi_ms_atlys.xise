@@ -35,7 +35,7 @@
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="67"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="2"/>
-      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="2"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="0"/>
     </file>
   </files>
 
@@ -160,7 +160,7 @@
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|spi_master_atlys_top|behavioral" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Implementation Top File" xil_pn:value="spi_master_atlys_top.vhd" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/spi_master_atlys_top" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include UNISIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -363,7 +363,7 @@
     <property xil_pn:name="PROP_PostMapSimTop" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="PROP_PostParSimTop" xil_pn:value="Architecture|testbench|behavior" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_PostSynthSimTop" xil_pn:value="" xil_pn:valueState="default"/>
-    <property xil_pn:name="PROP_PostXlateSimTop" xil_pn:value="Architecture|testbench|behavior" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_PostXlateSimTop" xil_pn:value="Architecture|spi_master_atlys_top|Structure" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_PreSynthesis" xil_pn:value="PreSynthesis" xil_pn:valueState="default"/>
     <property xil_pn:name="PROP_intProjectCreationTimestamp" xil_pn:value="2011-07-07T09:55:20" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_intWbtProjectID" xil_pn:value="2C5BE631B69F48AB8C2F24035AF7A13B" xil_pn:valueState="non-default"/>
